@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modern
+  labels: {app: modern}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: modern}
+  template:
+    metadata:
+      labels: {app: modern}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: modern
+          image: IMAGE_MODERN
+          imagePullPolicy: Never
+          env:
+            - {name: SPRING_DATASOURCE_URL, value: "jdbc:h2:tcp://h2:9092/kitchensink"}
+            - {name: SPRING_DATASOURCE_USERNAME, value: members_readonly}
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: h2-read-credentials, key: H2_READ_PASSWORD}
+            - {name: JAVA_TOOL_OPTIONS, value: "-XX:MaxRAMPercentage=50.0"}
+          ports: [{name: http, containerPort: 8080}]
+          resources:
+            requests: {cpu: 100m, memory: 192Mi}
+            limits: {memory: 512Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+          startupProbe:
+            httpGet: {path: /kitchensink/actuator/health/readiness, port: http}
+            periodSeconds: 3
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: {path: /kitchensink/actuator/health/readiness, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /kitchensink/actuator/health/liveness, port: http}
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modern
+  labels: {app: modern}
+spec:
+  selector: {app: modern}
+  ports: [{name: http, port: 8080, targetPort: http}]

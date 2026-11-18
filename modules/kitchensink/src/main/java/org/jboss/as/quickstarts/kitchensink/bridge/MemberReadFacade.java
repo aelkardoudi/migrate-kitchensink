@@ -5,20 +5,19 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.jboss.as.quickstarts.kitchensink.data.MemberRepository;
 import org.jboss.as.quickstarts.kitchensink.model.Member;
 
 @ApplicationScoped
 public class MemberReadFacade {
 
     @Inject
-    private MemberRepository repository;
+    private MemberApiClient memberApi;
 
     public List<Member> findAllOrderedByName() {
-        return repository.findAllOrderedByName();
+        return memberApi.findAllOrderedByName();
     }
 
     public Member findById(Long id) {
-        return repository.findById(id);
+        return memberApi.findById(id);
     }
 }

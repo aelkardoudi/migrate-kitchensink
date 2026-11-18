@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: new-kitchensink-boot
+  datasource:
+    embedded-database-connection: none
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      mode: never
+
+server:
+  servlet:
+    context-path: /kitchensink
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
+
+---
+spring:
+  config:
+    activate:
+      on-cloud-platform: kubernetes
+
+logging:
+  level:
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
