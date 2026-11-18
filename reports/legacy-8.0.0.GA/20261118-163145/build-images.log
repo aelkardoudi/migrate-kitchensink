@@ -1,0 +1,77 @@
+/Users/abdelilah/Documents/Codex/2026-11-13/task/.tools/wildfly.zip: OK
+#0 building with "colima" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 291B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/eclipse-temurin:21-jre@sha256:18bb4a91a3dea3f03ee31d3755af34dfb40f904fc77ab56cdc2f092e32fff9c2
+#2 DONE 0.1s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/4] FROM docker.io/library/eclipse-temurin:21-jre@sha256:18bb4a91a3dea3f03ee31d3755af34dfb40f904fc77ab56cdc2f092e32fff9c2
+#4 resolve docker.io/library/eclipse-temurin:21-jre@sha256:18bb4a91a3dea3f03ee31d3755af34dfb40f904fc77ab56cdc2f092e32fff9c2 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 2.55MB 0.0s done
+#5 DONE 0.0s
+
+#6 [2/4] COPY h2.jar /opt/h2.jar
+#6 CACHED
+
+#7 [3/4] COPY schema.sql /opt/schema.sql
+#7 CACHED
+
+#8 [4/4] COPY --chmod=755 start.sh /opt/start.sh
+#8 CACHED
+
+#9 exporting to image
+#9 exporting layers done
+#9 exporting manifest sha256:d57a868e0a5a326cbf177accf071eb586c03c8489d2912177834067961d73c2a done
+#9 exporting config sha256:87381e2e5f01d31b050f35fdc08e7e71507e2a7238ed9c16b1188872393d15ed done
+#9 naming to docker.io/library/migrate-kitchensink-h2:build done
+#9 unpacking to docker.io/library/migrate-kitchensink-h2:build done
+#9 DONE 0.0s
+#0 building with "colima" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 362B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/eclipse-temurin:21-jre@sha256:18bb4a91a3dea3f03ee31d3755af34dfb40f904fc77ab56cdc2f092e32fff9c2
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/4] FROM docker.io/library/eclipse-temurin:21-jre@sha256:18bb4a91a3dea3f03ee31d3755af34dfb40f904fc77ab56cdc2f092e32fff9c2
+#4 resolve docker.io/library/eclipse-temurin:21-jre@sha256:18bb4a91a3dea3f03ee31d3755af34dfb40f904fc77ab56cdc2f092e32fff9c2 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 340.44kB 0.2s done
+#5 DONE 0.2s
+
+#6 [2/4] COPY --chown=1000:1000 wildfly/ /opt/wildfly/
+#6 CACHED
+
+#7 [3/4] COPY --chown=1000:1000 app/ /opt/wildfly/standalone/deployments/kitchensink.war/
+#7 DONE 0.0s
+
+#8 [4/4] COPY --chmod=755 start.sh /opt/start.sh
+#8 DONE 0.0s
+
+#9 exporting to image
+#9 exporting layers 0.0s done
+#9 exporting manifest sha256:ce2da1784e3051e371013605679cf80f4555bcb26f0cb7ad1f4ad8bb63c46ca8 done
+#9 exporting config sha256:6de59a44b86b6a3c6dc4f145a90a7f32f47ebcb98c52d93c7fc896580d9f884a done
+#9 naming to docker.io/library/migrate-kitchensink-legacy:build done
+#9 unpacking to docker.io/library/migrate-kitchensink-legacy:build 0.0s done
+#9 DONE 0.1s
+h2	migrate-kitchensink-h2:content-d57a868e0a5a326cbf177accf071eb586c03c8489d2912177834067961d73c2a	sha256:d57a868e0a5a326cbf177accf071eb586c03c8489d2912177834067961d73c2a
+legacy	migrate-kitchensink-legacy:content-ce2da1784e3051e371013605679cf80f4555bcb26f0cb7ad1f4ad8bb63c46ca8	sha256:ce2da1784e3051e371013605679cf80f4555bcb26f0cb7ad1f4ad8bb63c46ca8

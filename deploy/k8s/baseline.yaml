@@ -1,0 +1,109 @@
+# Local baseline. demo.sh sets the namespace and renders the built image references.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: h2-data
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: h2
+spec:
+  replicas: 1
+  serviceName: h2
+  selector:
+    matchLabels: {app: h2}
+  template:
+    metadata:
+      labels: {app: h2}
+    spec:
+      securityContext: {fsGroup: 1000}
+      containers:
+        - name: h2
+          image: IMAGE_H2
+          imagePullPolicy: Never
+          envFrom: [{secretRef: {name: h2-credentials}}]
+          ports: [{name: tcp, containerPort: 9092}]
+          volumeMounts: [{name: data, mountPath: /data}]
+          resources:
+            requests: {cpu: 50m, memory: 96Mi}
+            limits: {memory: 256Mi}
+          securityContext: {runAsNonRoot: true, runAsUser: 1000, allowPrivilegeEscalation: false}
+          readinessProbe:
+            tcpSocket: {port: tcp}
+            periodSeconds: 2
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: h2-data}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: h2
+spec:
+  selector: {app: h2}
+  ports: [{port: 9092, targetPort: tcp}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: legacy
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: legacy}
+  template:
+    metadata:
+      labels: {app: legacy}
+    spec:
+      initContainers:
+        - name: wait-h2
+          image: IMAGE_H2
+          imagePullPolicy: Never
+          env:
+            - name: H2_APP_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: h2-credentials, key: H2_APP_PASSWORD}
+          command: [sh, -c]
+          args: ["until java -cp /opt/h2.jar org.h2.tools.Shell -url jdbc:h2:tcp://h2:9092/kitchensink -user members -password \"$H2_APP_PASSWORD\" -sql 'SELECT 1'; do sleep 2; done"]
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {memory: 128Mi}
+      containers:
+        - name: legacy
+          image: IMAGE_LEGACY
+          imagePullPolicy: Never
+          ports: [{name: http, containerPort: 8080}]
+          env:
+            - name: H2_APP_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: h2-credentials, key: H2_APP_PASSWORD}
+            - {name: JAVA_OPTS, value: "-Xlog:gc:stdout:time,level,tags -Xms128m -Xmx512m -Djava.net.preferIPv4Stack=true"}
+          resources:
+            requests: {cpu: 100m, memory: 384Mi}
+            limits: {memory: 768Mi}
+          securityContext: {runAsNonRoot: true, runAsUser: 1000, allowPrivilegeEscalation: false}
+          startupProbe:
+            httpGet: {path: /kitchensink/resources/css/screen.css, port: http}
+            periodSeconds: 2
+            failureThreshold: 90
+          readinessProbe:
+            httpGet: {path: /kitchensink/resources/css/screen.css, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket: {port: http}
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: public-web
+spec:
+  selector: {app: legacy}
+  ports: [{name: http, port: 8080, targetPort: http}]

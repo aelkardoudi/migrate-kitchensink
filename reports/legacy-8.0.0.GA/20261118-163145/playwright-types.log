@@ -1,0 +1,4 @@
+
+> migrate-kitchensink-e2e@0.1.0 check:tests
+> tsc --noEmit
+

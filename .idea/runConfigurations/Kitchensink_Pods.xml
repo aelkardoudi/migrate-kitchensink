@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Kitchensink - Pods" type="ShConfigurationType">
+    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/deploy/demo.sh" />
+    <option name="SCRIPT_OPTIONS" value="status" />
+    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="INTERPRETER_PATH" value="/bin/bash" />
+    <option name="EXECUTE_IN_TERMINAL" value="false" />
+    <option name="EXECUTE_SCRIPT_FILE" value="true" />
+    <envs>
+      <env name="PATH" value="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin" />
+      <env name="KS_KIND_CLUSTER" value="kitchensink" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>

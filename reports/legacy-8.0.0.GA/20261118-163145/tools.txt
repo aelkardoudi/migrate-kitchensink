@@ -1,0 +1,11 @@
+Apache Maven 3.9.9 (8e8579a9e76f7d015ee5ec7bfcdc97d260186937)
+Maven home: /Users/abdelilah/Documents/Codex/2026-11-13/task/.tools/apache-maven-3.9.9
+Java version: 17.0.13, vendor: Eclipse Adoptium, runtime: /Users/abdelilah/Documents/Codex/2026-11-13/task/.tools/jdk-17.0.13+11/Contents/Home
+Default locale: fr_FR, platform encoding: UTF-8
+OS name: "mac os x", version: "26.6", arch: "aarch64", family: "mac"
+Node.js v26.8.2
+npm 11.19.1
+Version 1.62.1
+Client Version: v1.37.2
+Kustomize Version: v5.8.1
+kind v0.33.0 go1.27.0 darwin/arm64

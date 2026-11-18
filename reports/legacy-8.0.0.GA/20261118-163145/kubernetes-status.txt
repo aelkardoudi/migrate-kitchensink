@@ -1,0 +1,16 @@
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES                                                                                                SELECTOR
+deployment.apps/legacy   1/1     1            1           11s   legacy       migrate-kitchensink-legacy:content-ce2da1784e3051e371013605679cf80f4555bcb26f0cb7ad1f4ad8bb63c46ca8   app=legacy
+
+NAME                  READY   AGE   CONTAINERS   IMAGES
+statefulset.apps/h2   1/1     11s   h2           migrate-kitchensink-h2:content-d57a868e0a5a326cbf177accf071eb586c03c8489d2912177834067961d73c2a
+
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+service/h2           ClusterIP   10.96.98.154   <none>        9092/TCP   11s   app=h2
+service/public-web   ClusterIP   10.96.33.135   <none>        8080/TCP   11s   app=legacy
+
+NAME                            STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+persistentvolumeclaim/h2-data   Bound    pvc-b300ef49-a424-41f5-91a7-67097ef8ea96   1Gi        RWO            standard       <unset>                 11s   Filesystem
+
+NAME                          READY   STATUS    RESTARTS   AGE   IP             NODE                        NOMINATED NODE   READINESS GATES
+pod/h2-0                      1/1     Running   0          11s   10.244.0.154   kitchensink-control-plane   <none>           <none>
+pod/legacy-84ddd57455-8597t   1/1     Running   0          11s   10.244.0.152   kitchensink-control-plane   <none>           <none>

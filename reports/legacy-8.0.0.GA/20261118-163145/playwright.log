@@ -1,0 +1,25 @@
+
+> migrate-kitchensink-e2e@0.1.0 test
+> playwright test --reporter=list,json,html
+
+
+Running 12 tests using 1 worker
+
+(node:55778) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [contrat] › tests/contrat/members.spec.ts:27:1 › B1-REST-01 · list, typed numeric ID, Unicode, exact detail and a missing ID (386ms)
+  ✓   2 [contrat] › tests/contrat/members.spec.ts:42:1 › B1-REST-02 · list sorts names and preserves both IDs for equal names (940ms)
+  ✓   3 [contrat] › tests/contrat/members.spec.ts:52:1 › B1-REST-03 · another registration with an existing email receives 409 (1.7s)
+  ✓   4 [contrat] › tests/contrat/members.spec.ts:70:3 › B1-REST-04 · field errors for name longer than 25 (38ms)
+  ✓   5 [contrat] › tests/contrat/members.spec.ts:70:3 › B1-REST-04 · field errors for empty name (34ms)
+  ✓   6 [contrat] › tests/contrat/members.spec.ts:70:3 › B1-REST-04 · field errors for 9 phone digits (37ms)
+  ✓   7 [contrat] › tests/contrat/members.spec.ts:70:3 › B1-REST-04 · field errors for 13 phone digits (24ms)
+  ✓   8 [contrat] › tests/contrat/members.spec.ts:70:3 › B1-REST-04 · field errors for letters in phone (27ms)
+  ✓   9 [contrat] › tests/contrat/members.spec.ts:70:3 › B1-REST-04 · field errors for several invalid fields (23ms)
+  ✓  10 [contrat] › tests/contrat/members.spec.ts:81:1 › B1-REST-05 · accepts a 25-character name and 12 phone digits (28ms)
+  ✓  11 [contrat] › tests/contrat/members.spec.ts:88:1 › B1-REST-06 · concurrent requests for one email persist exactly one member (53ms)
+(node:55781) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [e2e] › tests/e2e/inscription.spec.ts:4:1 › B1-JSF-01 · invalid fields retain input; corrected registration is visible in the same rendered page (24.7s)
+
+  12 passed (28.8s)

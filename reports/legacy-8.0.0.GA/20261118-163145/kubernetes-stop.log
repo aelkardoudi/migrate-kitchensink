@@ -1,0 +1,4 @@
+deployment.apps/legacy scaled
+pod/legacy-84ddd57455-8597t condition met
+statefulset.apps/h2 scaled
+pod/h2-0 condition met

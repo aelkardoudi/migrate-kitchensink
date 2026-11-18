@@ -1,0 +1,51 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< org.jboss.eap.quickstarts:kitchensink >----------------
+[INFO] Building Quickstart: kitchensink 8.0.0.GA
+[INFO]   from pom.xml
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.0.0-M3:enforce (enforce-java-version) @ kitchensink ---
+[INFO] 
+[INFO] --- enforcer:3.0.0-M3:enforce (enforce-maven-version) @ kitchensink ---
+[INFO] 
+[INFO] --- buildnumber:1.4:create (get-scm-revision) @ kitchensink ---
+[INFO] maven is executed in offline mode, Updating project files from SCM: skipped.
+[INFO] Executing: /bin/sh -c cd '/private/tmp/ks-qualification-kl9zml2f/modules/kitchensink' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /private/tmp/ks-qualification-kl9zml2f/modules/kitchensink
+[INFO] Storing buildNumber: UNKNOWN at timestamp: 1795015941361
+[WARNING] Cannot get the branch information from the git repository: 
+Detecting the current branch failed: fatal: not a git repository (or any of the parent directories): .git
+
+[INFO] Executing: /bin/sh -c cd '/private/tmp/ks-qualification-kl9zml2f/modules/kitchensink' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /private/tmp/ks-qualification-kl9zml2f/modules/kitchensink
+[INFO] Storing buildScmBranch: UNKNOWN_BRANCH
+[INFO] 
+[INFO] --- project-sources:1.0:archive (project-sources-archive) @ kitchensink ---
+[INFO] Skipping the assembly in this project because it's not the Execution Root
+[INFO] 
+[INFO] --- resources:3.2.0:resources (default-resources) @ kitchensink ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 2 resources
+[INFO] 
+[INFO] --- compiler:3.8.1:compile (default-compile) @ kitchensink ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- checkstyle:3.1.1:checkstyle (check-style) @ kitchensink ---
+[INFO] Début de la vérification...
+Vérification terminée.
+[INFO] 
+[INFO] --- resources:3.2.0:testResources (default-testResources) @ kitchensink ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ kitchensink ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.482 s
+[INFO] Finished at: 2026-11-18T16:32:22+01:00
+[INFO] ------------------------------------------------------------------------
