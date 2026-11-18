@@ -25,13 +25,14 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.List;
 
+import org.jboss.as.quickstarts.kitchensink.bridge.MemberReadFacade;
 import org.jboss.as.quickstarts.kitchensink.model.Member;
 
 @RequestScoped
 public class MemberListProducer {
 
     @Inject
-    private MemberRepository memberRepository;
+    private MemberReadFacade memberReads;
 
     private List<Member> members;
 
@@ -49,6 +50,6 @@ public class MemberListProducer {
 
     @PostConstruct
     public void retrieveAllMembersOrderedByName() {
-        members = memberRepository.findAllOrderedByName();
+        members = memberReads.findAllOrderedByName();
     }
 }
