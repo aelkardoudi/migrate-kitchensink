@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Optional;
 
 import io.kitchensink.member.application.port.in.QueryMembers;
+import io.kitchensink.member.application.port.in.RegisterMember;
 import io.kitchensink.member.application.port.out.MemberRepository;
 import io.kitchensink.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class MemberService implements QueryMembers {
+public class MemberService implements QueryMembers, RegisterMember {
     private final MemberRepository repository;
 
     @Override
@@ -20,5 +21,10 @@ public class MemberService implements QueryMembers {
     @Override
     public Optional<Member> findById(long id) {
         return repository.findById(id);
+    }
+
+    @Override
+    public void register(String name, String email, String phoneNumber) {
+        repository.insert(name, email, phoneNumber);
     }
 }

@@ -9,4 +9,6 @@ public interface MemberRepository {
     List<Member> findAllOrderedByName();
 
     Optional<Member> findById(long id);
+
+    void insert(String name, String email, String phoneNumber);
 }

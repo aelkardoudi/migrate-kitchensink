@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface H2MemberRepository extends JpaRepository<MemberEntity, Long> {
     List<MemberEntity> findAllByOrderByNameAsc();
+
+    boolean existsByEmail(String email);
 }

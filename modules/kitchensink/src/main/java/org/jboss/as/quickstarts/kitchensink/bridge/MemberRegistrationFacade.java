@@ -1,31 +1,22 @@
 package org.jboss.as.quickstarts.kitchensink.bridge;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-import jakarta.persistence.NoResultException;
 
-import org.jboss.as.quickstarts.kitchensink.data.MemberRepository;
 import org.jboss.as.quickstarts.kitchensink.model.Member;
-import org.jboss.as.quickstarts.kitchensink.service.MemberRegistration;
 
 @ApplicationScoped
 public class MemberRegistrationFacade {
 
     @Inject
-    private MemberRepository repository;
+    private MemberApiClient memberApi;
 
     @Inject
-    private MemberRegistration registration;
+    private Event<Member> memberRegistered;
 
-    public boolean emailAlreadyExists(String email) {
-        try {
-            return repository.findByEmail(email) != null;
-        } catch (NoResultException e) {
-            return false;
-        }
-    }
-
-    public void register(Member member) throws Exception {
-        registration.register(member);
+    public void register(Member member) {
+        memberApi.register(member);
+        memberRegistered.fire(member);
     }
 }

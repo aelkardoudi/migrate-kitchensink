@@ -35,7 +35,7 @@ You need JDK 21, Maven, Docker with BuildKit, kind, kubectl, and OpenSSL.
 
 The build verifies the WildFly distribution's SHA-256 checksum. To reuse a local archive, set `KS_WILDFLY_ZIP` to its path before running `build-images.sh`. The script writes the local image references to `.run/deploy/images.tsv`. `demo.sh up` loads those images into kind and inserts their references into the manifest before applying it.
 
-## Deploy the Spring member reads
+## Deploy the Spring member API
 
 Use JDK 21 to build the Spring Boot JAR. Deploy its image in the kind namespace that already contains the H2 StatefulSet and Service. Spring connects directly to H2 and has its own Deployment and Service.
 
@@ -46,15 +46,15 @@ mvn -Pmodern -pl .,modules/new-kitchensink-boot -am clean package
 ./deploy/modern.sh forward
 ```
 
-Open the [Spring member list](http://127.0.0.1:18203/kitchensink/rest/members) or [member 0](http://127.0.0.1:18203/kitchensink/rest/members/0). Kubernetes uses `modern:8080` for the internal service. Spring's H2 account has `SELECT` access on the existing `Member` table. The script creates `h2-read-credentials` and reuses it across restarts. Pass `--namespace` to select the namespace where H2 runs.
+Open the [Spring member list](http://127.0.0.1:18203/kitchensink/rest/members) or [member 0](http://127.0.0.1:18203/kitchensink/rest/members/0). Kubernetes uses `modern:8080` for the internal service. Spring's `members_writer` account has `SELECT` and `INSERT` on the existing `Member` table. The script creates `h2-write-credentials` and reuses it across restarts. Pass `--namespace` to select the namespace where H2 runs.
 
 `./deploy/modern.sh status` shows the Spring service and pods. `./deploy/modern.sh stop` scales Spring to zero. Keep H2 running while Spring is serving requests.
 
-## Roll back delegated reads
+## Roll back delegated registration
 
-The current WildFly image sends member list and detail requests to Spring Boot. WildFly handles registrations with the shared H2 database. If Spring is unavailable, the WildFly REST reads return HTTP 503. For standalone WildFly, set `KS_SPRING_READ_BASE_URL` to the Spring URL including the `/kitchensink` context path.
+WildFly sends member reads and registrations from the JSF form and REST API to Spring Boot. If Spring is unavailable, WildFly returns HTTP 503 for REST requests. For standalone WildFly, set `KS_SPRING_BASE_URL` to the Spring URL including the `/kitchensink` context path. The previous `KS_SPRING_READ_BASE_URL` setting still works when `KS_SPRING_BASE_URL` is unset.
 
-Before deploying the new WildFly image, record the image reference of the version that reads H2 directly.
+For an existing stack, deploy the new Spring image before the new WildFly image. Before updating WildFly, record the image reference from `migration/03-delegate-reading`, which still writes directly to H2.
 
 ```sh
 kubectl --context kind-kitchensink -n migrate-kitchensink-dev get deployment legacy \
@@ -69,4 +69,4 @@ kubectl --context kind-kitchensink -n migrate-kitchensink-dev set image deployme
 kubectl --context kind-kitchensink -n migrate-kitchensink-dev rollout status deployment/legacy
 ```
 
-`kubectl rollout undo deployment/legacy` is also suitable if the previous revision contains that image. The Deployment uses the same H2 service and volume. If you run `demo.sh up` again, it applies the image recorded in `.run/deploy/images.tsv`.
+`kubectl rollout undo deployment/legacy` is also suitable if the previous revision contains that image. It writes to the same H2 service, volume and `Member_SEQ` sequence. Keep Spring running to serve the reads. If you run `demo.sh up` again, it applies the image recorded in `.run/deploy/images.tsv`.
