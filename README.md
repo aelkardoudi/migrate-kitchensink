@@ -45,7 +45,7 @@ Activate the Maven `modern` profile with JDK 21 to build and test the new module
 mvn -Pmodern -pl .,modules/new-kitchensink-boot -am clean verify
 ```
 
-The [Spring Boot module](modules/new-kitchensink-boot/README.md) uses the existing H2 database for member lists, details and registrations. It runs in its own Kubernetes Deployment. See the [deployment guide](deploy/README.md#deploy-the-spring-member-api). In IntelliJ IDEA, activate `modern` in the Maven tool window to load both new modules.
+The [Spring Boot module](modules/new-kitchensink-boot/README.md) uses H2 by default for member lists, details and registrations. It runs in its own Kubernetes Deployment. See the [deployment guide](deploy/README.md#deploy-the-spring-member-api). In IntelliJ IDEA, activate `modern` in the Maven tool window to load both new modules.
 
 WildFly serves the JSF UI and public REST API and delegates member reads and registrations to Spring Boot. Redeploy the [previous WildFly image](deploy/README.md#roll-back-delegated-registration) to restore direct H2 writes.
 
@@ -56,6 +56,10 @@ The `live-integration` Maven profile builds the Camel Spring Boot application an
 ## Copy existing H2 members to MongoDB
 
 Run the `batch` profile to build the [Spring Batch backfill](modules/kitchensink-member-backfill/README.md). The job uses the optional `maxMemberId` parameter as an inclusive limit. By default, it captures the highest visible H2 member ID at startup. Camel keeps following the outbox while the batch runs, including when a new transaction commits with a lower ID. Both writers use the H2 ID as MongoDB `_id` and accept identical data already copied by the other writer. See the [deployment guide](deploy/README.md#run-the-spring-batch-member-backfill) to launch or resume the job.
+
+## Switch the member API to MongoDB
+
+The Spring `mongo` profile uses a Spring Data `MongoRepository` for member lists, details and registrations. The [Kubernetes cutover](deploy/README.md#switch-member-reads-and-writes-to-mongodb) pauses the application, waits for Camel to drain the H2 outbox, compares the data and initializes the MongoDB ID counter before reopening the JSF frontend. H2 and Camel remain deployed during this stage.
 
 ## Run the tests
 
@@ -68,6 +72,8 @@ npm --prefix e2e test
 ```
 
 Use `npm --prefix e2e run test:contrat` for REST only or `npm --prefix e2e run test:e2e` for the browser only. The JSON report is written to `.run/playwright/playwright.json`. See the [Playwright guide](e2e/README.md) and the [Java integration test guide](modules/kitchensink/README.adoc#run_the_arquillian_integration_tests_with_server_distribution).
+
+For a Mongo-backed rehearsal, forward the public service in the isolated namespace and set `KS_BASE` to the forwarded `/kitchensink/` URL before running Playwright. The suite creates test members in the selected database.
 
 ## Baseline evidence
 
@@ -88,3 +94,7 @@ The [verification report](reports/live-integration/20261119-012907/report.md) re
 ## Member backfill evidence
 
 The [qualification report](reports/member-backfill/20261119-105717/report.md) records the historical copy, the bounded and whole-table verification steps, and the Java, REST and JSF results.
+
+## MongoDB cutover evidence
+
+The [qualification report](reports/mongodb-cutover/20261119-112528/report.md) records the cutover rehearsal, the drain timeout and restoration, the MongoDB writes, and the validation of the persistent test environment.

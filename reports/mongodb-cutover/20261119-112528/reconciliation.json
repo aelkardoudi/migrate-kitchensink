@@ -1,0 +1,57 @@
+{
+  "rehearsal": {
+    "beforeTimeout": {
+      "namespace": "migrate-kitchensink-verify-batch-06",
+      "h2Members": 19,
+      "mongoMembers": 18,
+      "maxH2Id": "102",
+      "pendingOutbox": 1,
+      "missingInMongo": 1,
+      "differentFields": 0,
+      "invalidMongoDocuments": 0,
+      "mongoOnly": 0,
+      "mongoOnlyIdsAboveH2Max": true
+    },
+    "unchangedAfterRefusal": true,
+    "beforePlaywright": {
+      "namespace": "migrate-kitchensink-verify-batch-06",
+      "h2Members": 19,
+      "mongoMembers": 19,
+      "maxH2Id": "102",
+      "pendingOutbox": 0,
+      "missingInMongo": 0,
+      "differentFields": 0,
+      "invalidMongoDocuments": 0,
+      "mongoOnly": 0,
+      "mongoOnlyIdsAboveH2Max": true
+    },
+    "afterPlaywright": {
+      "namespace": "migrate-kitchensink-verify-batch-06",
+      "h2Members": 19,
+      "mongoMembers": 27,
+      "maxH2Id": "102",
+      "pendingOutbox": 0,
+      "missingInMongo": 0,
+      "differentFields": 0,
+      "invalidMongoDocuments": 0,
+      "mongoOnly": 8,
+      "mongoOnlyIdsAboveH2Max": true
+    },
+    "h2ContentUnchanged": true
+  },
+  "persistentTest": {
+    "afterCutover": {
+      "namespace": "migrate-kitchensink-test",
+      "h2Members": 47,
+      "mongoMembers": 47,
+      "maxH2Id": "219",
+      "pendingOutbox": 0,
+      "missingInMongo": 0,
+      "differentFields": 0,
+      "invalidMongoDocuments": 0,
+      "mongoOnly": 0,
+      "mongoOnlyIdsAboveH2Max": true
+    },
+    "h2ContentUnchanged": true
+  }
+}

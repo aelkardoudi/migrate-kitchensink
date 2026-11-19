@@ -8,10 +8,12 @@ import io.kitchensink.member.domain.DuplicateMemberEmailException;
 import io.kitchensink.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Profile("!mongo")
 @RequiredArgsConstructor
 public class H2MemberAdapter implements MemberRepository {
     private final H2MemberRepository repository;

@@ -107,6 +107,21 @@ Use the standalone verification Job for an on-demand comparison of the exact tot
 
 Follow the log command printed for the `member-backfill-verify-` Job to see the exact row count in H2 and document count in MongoDB. The Job retries briefly if the totals differ. It exits with `0` when the totals match, `1` when they still differ, or `2` on a configuration or database read error.
 
+## Switch member reads and writes to MongoDB
+
+Complete a full backfill and keep H2, MongoDB and Camel running. Use Node.js 22 or later for the cutover checks. Build the Spring Boot image and prepare it while the H2-backed application is serving requests. Rehearse in a dedicated namespace first. Run the cutover in an exclusive maintenance window after any other deployment operations and direct H2 writes have stopped.
+
+```sh
+mvn -Pmodern -pl .,modules/new-kitchensink-boot -am clean package
+./deploy/modern.sh build
+./deploy/mongo-cutover.sh prepare --namespace migrate-kitchensink-test
+./deploy/mongo-cutover.sh cutover --namespace migrate-kitchensink-test
+```
+
+Preparation loads the new image into kind, provisions the `members_api` MongoDB account and checks the unique email index. Cutover fences the public and Spring services, stops the H2-backed application pods, waits for the entire outbox to drain and compares each member across both databases. It initializes the numeric MongoDB counter from the highest imported member ID and starts Spring Boot with the `mongo` profile. Both services reopen after MongoDB readiness and a member-list smoke test pass. Restart any port-forwards that were attached to the old pods.
+
+The default outbox drain timeout is 60 seconds. Use `--drain-timeout` to set it for a rehearsal. If a check fails before the MongoDB service is released, the script restores the previous H2 deployment. If a failure occurs during release, it fences both services for investigation. After any MongoDB writes, reconcile them back to H2 before returning traffic to H2. `modern.sh up` protects a namespace that is switching or has already switched to MongoDB from accidentally redeploying the H2 configuration.
+
 ## Roll back delegated registration
 
 WildFly sends member reads and registrations from the JSF form and REST API to Spring Boot. If Spring is unavailable, WildFly returns HTTP 503 for REST requests. For standalone WildFly, set `KS_SPRING_BASE_URL` to the Spring URL including the `/kitchensink` context path. The previous `KS_SPRING_READ_BASE_URL` setting still works when `KS_SPRING_BASE_URL` is unset.
