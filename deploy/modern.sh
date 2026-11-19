@@ -91,36 +91,36 @@ load_image() {
   kind load docker-image "$image" --name "$cluster"
 }
 
-provision_h2_reader() {
-  local secret=h2-read-credentials generated_password reader_password
+provision_h2_writer() {
+  local secret=h2-write-credentials generated_password writer_password
   if [[ -z "$("${in_ns[@]}" get secret "$secret" --ignore-not-found -o name)" ]]; then
     generated_password=$(openssl rand -hex 24)
-    if ! printf 'H2_READ_PASSWORD=%s\n' "$generated_password" |
+    if ! printf 'H2_WRITE_PASSWORD=%s\n' "$generated_password" |
       "${in_ns[@]}" create secret generic "$secret" --from-env-file=/dev/stdin >/dev/null 2>&1; then
       # Reuse the winning Secret when concurrent deployments both tried to create it.
       "${in_ns[@]}" get secret "$secret" -o name >/dev/null
     fi
   fi
 
-  reader_password=$("${in_ns[@]}" get secret "$secret" -o 'jsonpath={.data.H2_READ_PASSWORD}' | openssl base64 -d -A)
-  if [[ ! "$reader_password" =~ ^[a-f0-9]{48}$ ]]; then
-    echo "Secret $secret must contain a generated H2_READ_PASSWORD." >&2
+  writer_password=$("${in_ns[@]}" get secret "$secret" -o 'jsonpath={.data.H2_WRITE_PASSWORD}' | openssl base64 -d -A)
+  if [[ ! "$writer_password" =~ ^[a-f0-9]{48}$ ]]; then
+    echo "Secret $secret must contain a generated H2_WRITE_PASSWORD." >&2
     exit 1
   fi
 
-  printf '%s\n' "$reader_password" |
+  printf '%s\n' "$writer_password" |
     "${in_ns[@]}" exec -i statefulset/h2 --container h2 -- sh -eu -c '
-      IFS= read -r reader_password
-      case "$reader_password" in ""|*[!a-f0-9]*) exit 2 ;; esac
+      IFS= read -r writer_password
+      case "$writer_password" in ""|*[!a-f0-9]*) exit 2 ;; esac
       umask 077
       grant_sql=$(mktemp)
       trap "rm -f \"\$grant_sql\"" EXIT
-      printf "CREATE USER IF NOT EXISTS members_readonly PASSWORD '\''%s'\'';\nALTER USER members_readonly SET PASSWORD '\''%s'\'';\nGRANT SELECT ON Member TO members_readonly;\n" \
-        "$reader_password" "$reader_password" > "$grant_sql"
+      printf "CREATE USER IF NOT EXISTS members_writer PASSWORD '\''%s'\'';\nALTER USER members_writer SET PASSWORD '\''%s'\'';\nGRANT SELECT, INSERT ON Member TO members_writer;\n" \
+        "$writer_password" "$writer_password" > "$grant_sql"
       if ! java -cp /opt/h2.jar org.h2.tools.RunScript \
         -url jdbc:h2:tcp://127.0.0.1:9092/kitchensink -user maintenance \
         -password "$H2_MAINT_PASSWORD" -script "$grant_sql" >/dev/null 2>&1; then
-        echo "Unable to provision the H2 read-only member account." >&2
+        echo "Unable to provision the H2 member writer account." >&2
         exit 1
       fi
     '
@@ -134,7 +134,7 @@ case "$action" in
     require_owner
     "${in_ns[@]}" rollout status statefulset/h2 --timeout=180s
     load_image
-    provision_h2_reader
+    provision_h2_writer
     sed "s|IMAGE_MODERN|$image|g" deploy/k8s/modern.yaml | "${in_ns[@]}" apply -f -
     "${in_ns[@]}" rollout status deployment/modern --timeout=240s
     printf 'Local access: ./deploy/modern.sh forward --namespace %s --port %s\n' "$namespace" "$port"

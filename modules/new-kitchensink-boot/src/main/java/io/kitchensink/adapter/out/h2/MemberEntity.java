@@ -2,7 +2,10 @@ package io.kitchensink.adapter.out.h2;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Digits;
@@ -21,6 +24,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "member-sequence")
+    @SequenceGenerator(name = "member-sequence", sequenceName = "Member_SEQ", allocationSize = 50)
     private Long id;
 
     @NotNull
@@ -38,4 +43,10 @@ public class MemberEntity {
     @Digits(integer = 12, fraction = 0)
     @Column(name = "phone_number")
     private String phoneNumber;
+
+    MemberEntity(String name, String email, String phoneNumber) {
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
 }

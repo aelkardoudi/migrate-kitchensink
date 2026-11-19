@@ -49,7 +49,7 @@ public class MemberListProducer {
 
     public void onMemberListChanged(
             @Observes(during = TransactionPhase.AFTER_SUCCESS, notifyObserver = Reception.IF_EXISTS) final Member member) {
-        // Let JSF reload during rendering, outside the transaction completion callback.
+        // Reload during JSF rendering after the registration has succeeded.
         members = null;
     }
 }

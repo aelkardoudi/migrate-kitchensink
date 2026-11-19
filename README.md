@@ -4,7 +4,7 @@ The legacy baseline `8.0.0.GA` runs the Jakarta EE application and its JSF front
 
 ```text
 modules/kitchensink/          Jakarta EE WAR, JSF frontend and Java tests
-modules/new-kitchensink-core/  Java 21 member read use cases
+modules/new-kitchensink-core/  Java 21 member use cases
 modules/new-kitchensink-boot/  Spring Boot member API and H2 adapter
 deploy/                        Docker image builds and kind deployment
 e2e/                           Playwright REST contract and browser tests
@@ -33,7 +33,7 @@ Open the [JSF frontend](http://127.0.0.1:18201/kitchensink/) or the [member API]
 
 In IntelliJ IDEA, import the root `pom.xml` and run **Kitchensink - Kubernetes**. View logs and pods in **Services → kind-kitchensink → Workloads → Pod** with the `migrate-kitchensink-dev` namespace selected.
 
-## Spring Boot member reads
+## Spring Boot member API
 
 Activate the Maven `modern` profile with JDK 21 to build and test the new modules.
 
@@ -41,9 +41,9 @@ Activate the Maven `modern` profile with JDK 21 to build and test the new module
 mvn -Pmodern -pl .,modules/new-kitchensink-boot -am clean verify
 ```
 
-The [Spring Boot module](modules/new-kitchensink-boot/README.md) serves member list and detail requests from the existing H2 database. It runs in its own Kubernetes Deployment. See the [deployment guide](deploy/README.md#deploy-the-spring-member-reads). In IntelliJ IDEA, activate `modern` in the Maven tool window to load both new modules.
+The [Spring Boot module](modules/new-kitchensink-boot/README.md) uses the existing H2 database for member lists, details and registrations. It runs in its own Kubernetes Deployment. See the [deployment guide](deploy/README.md#deploy-the-spring-member-api). In IntelliJ IDEA, activate `modern` in the Maven tool window to load both new modules.
 
-WildFly delegates the member list and detail to Spring Boot and handles registration. Redeploy the [previous WildFly image](deploy/README.md#roll-back-delegated-reads) to restore direct H2 reads.
+WildFly serves the JSF UI and public REST API and delegates member reads and registrations to Spring Boot. Redeploy the [previous WildFly image](deploy/README.md#roll-back-delegated-registration) to restore direct H2 writes.
 
 ## Run the tests
 
@@ -64,3 +64,7 @@ The functional qualification passed **13 tests on a fresh kind deployment** (1 M
 ## Delegated reading evidence
 
 The [non-regression report](reports/delegate-reading/20261118-210256/report.md) documents the REST, JSF and Java integration tests for `migration/03-delegate-reading`. It includes Spring request logs captured while the Playwright suite ran against WildFly.
+
+## Delegated registration evidence
+
+The [non-regression report](reports/delegate-writing/20261118-230305/report.md) records the REST, JSF and Spring integration tests for `migration/04-delegate-writing`. The Spring request logs show the registrations sent by WildFly to Spring Boot on the shared H2 database.
