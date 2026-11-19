@@ -1,0 +1,33 @@
+Isolated non-regression and full backfill in migrate-kitchensink-verify-batch-06
+mongodb	mongo:8.0.38	sha256:d97fea17ccb8d004cd137be8dab54d70d0df11be69c9f422aefe4484c8414ab7
+live-integration	migrate-kitchensink-live-integration:content-c82a8613a19f7d11b358896f5a0de4303b4a9e28713ebc33460c5440ca04c7ef	sha256:c82a8613a19f7d11b358896f5a0de4303b4a9e28713ebc33460c5440ca04c7ef
+migrate-kitchensink-member-backfill:content-bb57241a36d7c5ff1d2037a383588eccfb82c686ee6deb89d77b226b8c69782e	sha256:bb57241a36d7c5ff1d2037a383588eccfb82c686ee6deb89d77b226b8c69782e
+H2 outbox pending: 0 after Playwright
+Kubernetes Job member-backfill-4wpnf
+2026-11-19T09:57:24.186Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [captureUpperBound]
+2026-11-19T09:57:24.202Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [copyMembers]
+2026-11-19T09:57:24.325Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [verifyBackfillMembers]
+2026-11-19T09:57:24.336Z  INFO 1 --- [kitchensink-member-backfill] [           main] i.k.backfill.verify.VerifyMemberCounts   : Member verification COUNT_MATCH scope=backfill maxMemberId=60 h2=18 mongo=18 pendingMissing=0 stable=true
+2026-11-19T09:57:24.339Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [verifyAllMembers]
+2026-11-19T09:57:24.341Z  INFO 1 --- [kitchensink-member-backfill] [           main] i.k.backfill.verify.VerifyMemberCounts   : Member verification COUNT_MATCH scope=all h2=18 mongo=18 pendingMissing=0 stable=true
+2026-11-19T09:57:24.345Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.b.c.l.s.TaskExecutorJobLauncher      : Job: [SimpleJob: [name=memberBackfill]] completed with the following parameters: [{JobParameter{name='run.id', value=iteration-1795082239, type=class java.lang.String, identifying=true}}] and the following status: [COMPLETED] in 164ms
+
+Bounded backfill in migrate-kitchensink-test
+Kubernetes Job member-backfill-mvjnq
+2026-11-19T09:48:56.435Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [captureUpperBound]
+2026-11-19T09:48:56.442Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [copyMembers]
+2026-11-19T09:48:56.533Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [verifyBackfillMembers]
+2026-11-19T09:48:56.541Z  INFO 1 --- [kitchensink-member-backfill] [           main] i.k.backfill.verify.VerifyMemberCounts   : Member verification COUNT_MATCH scope=backfill maxMemberId=0 h2=1 mongo=1 pendingMissing=0 stable=true
+2026-11-19T09:48:56.544Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [verifyAllMembers]
+2026-11-19T09:48:56.546Z  INFO 1 --- [kitchensink-member-backfill] [           main] i.k.backfill.verify.VerifyMemberCounts   : Member verification COUNT_MATCH scope=all h2=47 mongo=47 pendingMissing=0 stable=true
+2026-11-19T09:48:56.550Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.b.c.l.s.TaskExecutorJobLauncher      : Job: [SimpleJob: [name=memberBackfill]] completed with the following parameters: [{JobParameter{name='run.id', value=four-steps-bounded-1795081731, type=class java.lang.String, identifying=true},JobParameter{name='maxMemberId', value=0, type=class java.lang.String, identifying=true}}] and the following status: [COMPLETED] in 120ms
+
+Full backfill in migrate-kitchensink-test
+Kubernetes Job member-backfill-h7mv9
+2026-11-19T09:49:04.116Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [captureUpperBound]
+2026-11-19T09:49:04.132Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [copyMembers]
+2026-11-19T09:49:04.268Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [verifyBackfillMembers]
+2026-11-19T09:49:04.276Z  INFO 1 --- [kitchensink-member-backfill] [           main] i.k.backfill.verify.VerifyMemberCounts   : Member verification COUNT_MATCH scope=backfill maxMemberId=219 h2=47 mongo=47 pendingMissing=0 stable=true
+2026-11-19T09:49:04.279Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.batch.core.step.AbstractStep         : Executing step: [verifyAllMembers]
+2026-11-19T09:49:04.281Z  INFO 1 --- [kitchensink-member-backfill] [           main] i.k.backfill.verify.VerifyMemberCounts   : Member verification COUNT_MATCH scope=all h2=47 mongo=47 pendingMissing=0 stable=true
+2026-11-19T09:49:04.285Z  INFO 1 --- [kitchensink-member-backfill] [           main] o.s.b.c.l.s.TaskExecutorJobLauncher      : Job: [SimpleJob: [name=memberBackfill]] completed with the following parameters: [{JobParameter{name='run.id', value=four-steps-full-1795081739, type=class java.lang.String, identifying=true}}] and the following status: [COMPLETED] in 175ms

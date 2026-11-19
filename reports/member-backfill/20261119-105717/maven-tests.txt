@@ -1,0 +1,12 @@
+mvn --offline --batch-mode -Pmodern,live-integration,batch clean verify
+
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.760 s -- in io.kitchensink.MemberReadTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.274 s -- in io.kitchensink.MemberRegistrationTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.087 s -- in io.kitchensink.mongo.MongoMemberStoreTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.475 s -- in io.kitchensink.integration.config.MemberInsertRouteTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.080 s -- in io.kitchensink.backfill.verify.MemberBackfillVerificationTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in io.kitchensink.backfill.verify.MemberCountVerificationTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.178 s -- in io.kitchensink.backfill.config.MemberBackfillRestartTest
+
+Tests run: 21, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
