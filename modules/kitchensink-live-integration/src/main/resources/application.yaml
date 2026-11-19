@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: kitchensink-live-integration
+  main:
+    web-application-type: none
+  datasource:
+    url: ${KS_H2_JDBC_URL}
+    username: ${KS_H2_USER:members_relay}
+    password: ${KS_H2_PASSWORD}
+    hikari:
+      maximum-pool-size: 2
+  mongodb:
+    uri: ${KS_MONGODB_URI}
+
+camel:
+  main:
+    run-controller: true
+
+kitchensink:
+  relay:
+    poll-interval-ms: ${KS_RELAY_POLL_INTERVAL_MS:200}

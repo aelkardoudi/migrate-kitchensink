@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: live-integration
+  labels: {app: live-integration}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app: live-integration}
+  template:
+    metadata:
+      labels: {app: live-integration}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: live-integration
+          image: IMAGE_LIVE_INTEGRATION
+          imagePullPolicy: Never
+          env:
+            - {name: KS_H2_JDBC_URL, value: "jdbc:h2:tcp://h2:9092/kitchensink"}
+            - {name: KS_H2_USER, value: members_relay}
+            - name: KS_H2_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: h2-relay-credentials, key: H2_RELAY_PASSWORD}
+            - name: MONGO_RELAY_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: mongodb-credentials, key: MONGO_RELAY_PASSWORD}
+            - name: KS_MONGODB_URI
+              value: "mongodb://members_relay:$(MONGO_RELAY_PASSWORD)@mongodb:27017/kitchensink?authSource=kitchensink"
+            - {name: JAVA_TOOL_OPTIONS, value: "-XX:MaxRAMPercentage=50.0"}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {memory: 384Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: tmp
+          emptyDir: {sizeLimit: 64Mi}

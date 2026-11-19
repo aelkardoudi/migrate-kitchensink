@@ -1,0 +1,86 @@
+{
+  "environment": {
+    "context": "kind-kitchensink",
+    "namespace": "migrate-kitchensink-verify-live-afpnfu",
+    "images": {
+      "h2": "migrate-kitchensink-h2:content-d601040ddb66c4f51fd50e02e491ea25c992a79aeb680def3a318a2b27ea68b4",
+      "legacy": "migrate-kitchensink-legacy:content-2549f1738dcc8d579b7c76313b097dec16ea9021b7f7b5e0269c5e87e12bb88e",
+      "live-integration": "migrate-kitchensink-live-integration:content-ddc1f3fbc243d28972c9bbe2c9a4e00f9bda23ac4b0b4e99788d40ecbf2a9cd4",
+      "modern": "migrate-kitchensink-modern:content-c598fe18d43fe906bc5f49e78b56511cf7e3f95f9390775c6da8f3faca0a3bc2",
+      "mongodb": "mongo:8.0.38"
+    }
+  },
+  "playwrightRun": {
+    "playwright": {
+      "startTime": "2026-11-19T00:29:07.059Z",
+      "duration": 2130.1490000000003,
+      "expected": 12,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "mongoCompared": 8,
+    "newMemberIds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      9
+    ],
+    "priorH2Rows": 1,
+    "priorMongoRows": 0,
+    "historicalId0InH2": true,
+    "historicalId0InMongo": false,
+    "pendingOutbox": 0
+  },
+  "liquibaseChangesets": [
+    {
+      "fileName": "db/changelog/mongodb/db.changelog-master.xml",
+      "id": "001-members-email-index",
+      "author": "kitchensink",
+      "md5sum": "9:bc25e33415bea5a7965e61da10db34e2"
+    }
+  ],
+  "mongoIndexes": [
+    {
+      "v": 2,
+      "key": {
+        "_id": 1
+      },
+      "name": "_id_"
+    },
+    {
+      "v": 2,
+      "key": {
+        "email": 1
+      },
+      "name": "members_email_unique",
+      "unique": true,
+      "partialFilterExpression": {
+        "email": {
+          "$type": "string"
+        }
+      }
+    }
+  ],
+  "restartRecovery": {
+    "memberId": 10,
+    "queuedWhileStopped": 1,
+    "mongoDocumentsWhileStopped": 0,
+    "pendingAfterRestart": 0,
+    "sourceAndTargetMatch": true
+  },
+  "replay": {
+    "sameDocumentCount": 1,
+    "documentUnchanged": true
+  },
+  "legacyJUnitMongoDocumentCount": 1,
+  "finalCounts": {
+    "newH2Members": 10,
+    "mongoMembers": 10,
+    "pendingOutbox": 0
+  }
+}

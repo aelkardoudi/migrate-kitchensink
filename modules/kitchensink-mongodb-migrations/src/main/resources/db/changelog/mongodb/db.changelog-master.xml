@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+            http://www.liquibase.org/xml/ns/mongodb http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-1.0.xsd">
+
+    <changeSet id="001-members-email-index" author="kitchensink" runInTransaction="false">
+        <comment>Create members if needed and mirror H2 email uniqueness for non-null values.</comment>
+        <mongodb:createIndex collectionName="members">
+            <mongodb:keys>{"email": 1}</mongodb:keys>
+            <mongodb:options>{
+                "name": "members_email_unique",
+                "unique": true,
+                "collation": {"locale": "simple"},
+                "partialFilterExpression": {"email": {"$type": "string"}}
+            }</mongodb:options>
+        </mongodb:createIndex>
+    </changeSet>
+</databaseChangeLog>

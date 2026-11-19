@@ -6,6 +6,8 @@ The legacy baseline `8.0.0.GA` runs the Jakarta EE application and its JSF front
 modules/kitchensink/          Jakarta EE WAR, JSF frontend and Java tests
 modules/new-kitchensink-core/  Java 21 member use cases
 modules/new-kitchensink-boot/  Spring Boot member API and H2 adapter
+modules/kitchensink-live-integration/  Camel relay from H2 to MongoDB
+modules/kitchensink-mongodb-migrations/  Liquibase changelog and MongoDB migration entry point
 deploy/                        Docker image builds and kind deployment
 e2e/                           Playwright REST contract and browser tests
 reports/                       Qualification reports and build evidence
@@ -45,6 +47,10 @@ The [Spring Boot module](modules/new-kitchensink-boot/README.md) uses the existi
 
 WildFly serves the JSF UI and public REST API and delegates member reads and registrations to Spring Boot. Redeploy the [previous WildFly image](deploy/README.md#roll-back-delegated-registration) to restore direct H2 writes.
 
+## Live replication to MongoDB
+
+The `live-integration` Maven profile builds the Camel Spring Boot application and its [MongoDB migrations module](modules/kitchensink-mongodb-migrations/README.md). An H2 trigger queues new member inserts, and Camel copies them to MongoDB after Liquibase has applied the target changelog. See the [kind deployment guide](deploy/README.md#deploy-mongodb-and-the-camel-relay) to run MongoDB and the relay in the test namespace.
+
 ## Run the tests
 
 With Node.js 22.18 or newer, install the pinned dependencies and Chromium once. The test command deploys WildFly, Spring Boot and H2 to `migrate-kitchensink-test` and uses port `18202` for the duration of the run.
@@ -68,3 +74,7 @@ The [non-regression report](reports/delegate-reading/20261118-210256/report.md) 
 ## Delegated registration evidence
 
 The [non-regression report](reports/delegate-writing/20261118-230305/report.md) records the REST, JSF and Spring integration tests for `migration/04-delegate-writing`. The Spring request logs show the registrations sent by WildFly to Spring Boot on the shared H2 database.
+
+## Live integration evidence
+
+The [verification report](reports/live-integration/20261119-012907/report.md) records the Java and Playwright tests, H2-to-MongoDB replication, restart recovery and event replay for `migration/05-live-integration`.

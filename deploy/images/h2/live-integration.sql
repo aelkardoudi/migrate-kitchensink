@@ -1,0 +1,16 @@
+-- Applied after the baseline seed so only subsequent inserts enter the outbox.
+CREATE TABLE IF NOT EXISTS MEMBER_INSERT_OUTBOX (
+    MEMBER_ID BIGINT PRIMARY KEY,
+    NEXT_ATTEMPT_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+CREATE INDEX IF NOT EXISTS MEMBER_INSERT_OUTBOX_DUE_IDX
+    ON MEMBER_INSERT_OUTBOX (NEXT_ATTEMPT_AT, MEMBER_ID);
+
+-- On a fresh database modern.sh replaces this generated password from its deployment Secret.
+CREATE USER IF NOT EXISTS members_writer PASSWORD RANDOM_UUID();
+GRANT INSERT ON MEMBER_INSERT_OUTBOX TO members;
+GRANT INSERT ON MEMBER_INSERT_OUTBOX TO members_writer;
+
+CREATE TRIGGER IF NOT EXISTS MEMBER_INSERT_CAPTURE
+    AFTER INSERT ON Member FOR EACH ROW
+    CALL 'io.kitchensink.h2.MemberInsertTrigger';

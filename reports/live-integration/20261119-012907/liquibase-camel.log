@@ -1,0 +1,4 @@
+Running Changeset: db/changelog/mongodb/db.changelog-master.xml::001-members-email-index::kitchensink
+2026-11-19T00:28:53.919Z  INFO 1 --- [kitchensink-live-integration] [           main] liquibase.command                        : Update command completed successfully.
+2026-11-19T00:28:54.247Z  INFO 1 --- [kitchensink-live-integration] [           main] o.a.c.impl.engine.AbstractCamelContext   :     Started relay-member-inserts (sql://SELECT%20m.ID%20AS%20MEMBER_ID,%20m.NAME,%20m.EMAIL,%20m.PHONE_NUMBER%20FROM%20MEMBER_INSERT_OUTBOX%20o%20JOIN%20Member%20m%20ON%20m.ID%20=%20o.MEMBER_ID%20WHERE%20o.NEXT_ATTEMPT_AT%20%3C=%20CURRENT_TIMESTAMP%20ORDER%20BY%20o.NEXT_ATTEMPT_AT,%20o.MEMBER_ID%20FETCH%20FIRST%20100%20ROWS%20ONLY)
+2026-11-19T00:28:54.250Z  INFO 1 --- [kitchensink-live-integration] [           main] i.k.i.LiveIntegrationApplication         : Started LiveIntegrationApplication in 1.567 seconds (process running for 1.644)

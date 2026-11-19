@@ -19,6 +19,10 @@
     <name>Migrate Kitchensink</name>
     <description>Parent project for the Kitchensink migration</description>
 
+    <properties>
+        <mongodb.version>5.9.1</mongodb.version>
+    </properties>
+
     <modules>
         <module>modules/kitchensink</module>
     </modules>
@@ -29,6 +33,13 @@
             <modules>
                 <module>modules/new-kitchensink-core</module>
                 <module>modules/new-kitchensink-boot</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>live-integration</id>
+            <modules>
+                <module>modules/kitchensink-mongodb-migrations</module>
+                <module>modules/kitchensink-live-integration</module>
             </modules>
         </profile>
     </profiles>
