@@ -6,8 +6,6 @@ In IntelliJ IDEA, select **Kitchensink - Kubernetes** in the top run selector an
 
 WildFly 28.0.1.Final serves the WAR built from `modules/kitchensink/`. H2 2.1.214 runs in a StatefulSet and stores its data in the `h2-data` volume. The WildFly image configures the WAR to connect to H2 over TCP and validate the schema that H2 creates.
 
-This setup adapts the [Method B baseline deployment](https://github.com/aelkardoudi/kitchensink-methode-b/tree/method-b/01-baseline/deploy) and builds the images from this project's WAR.
-
 You need a JDK, Maven, Docker with BuildKit, kind, kubectl, and OpenSSL.
 
 1. From the repository root, build the WAR and the images.

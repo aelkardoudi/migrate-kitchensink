@@ -1,20 +1,20 @@
-# Tests Playwright
+# Playwright tests
 
-Ces suites viennent du tag `method-b/01-baseline` (`1b92eab`). `tests/contrat/` vérifie le contrat REST et `tests/e2e/` rejoue l’inscription dans le navigateur.
+The suite in `tests/contrat/` verifies the members REST API. The suite in `tests/e2e/` covers member registration through the JSF frontend in Chromium.
 
-Depuis la racine du dépôt, avec Node.js 22.18 ou plus récent, installe les dépendances et Chromium.
+From the repository root, use Node.js 22.18 or newer to install the pinned dependencies and Chromium.
 
 ```sh
 npm --prefix e2e ci
 npm --prefix e2e exec -- playwright install chromium
 ```
 
-Avec le cluster kind et les images déjà préparés selon le [guide de déploiement](../deploy/README.md), lance les deux suites.
+Prepare the kind cluster and images using the [deployment guide](../deploy/README.md), then run both suites.
 
 ```sh
 npm --prefix e2e test
 ```
 
-Playwright démarre WildFly et H2 dans `migrate-kitchensink-test`, ouvre le port local `18202` le temps du test et écrit le rapport dans `.run/playwright/playwright.json`. Le namespace de test et son volume restent disponibles pour les exécutions suivantes. Chaque inscription utilise une adresse synthétique unique.
+Playwright starts WildFly and H2 in `migrate-kitchensink-test`, forwards local port `18202` for the duration of the run, and writes the report to `.run/playwright/playwright.json`. The test namespace and its volume remain available for later runs. Each registration uses a unique synthetic email address.
 
-Pour lancer une seule suite, utilise `npm --prefix e2e run test:contrat` ou `npm --prefix e2e run test:e2e`. Pour cibler un déploiement de test déjà accessible sur un autre port, adapte l’URL dans `KS_BASE=http://127.0.0.1:18203/kitchensink/ npm --prefix e2e test`.
+Run `npm --prefix e2e run test:contrat` for the REST suite or `npm --prefix e2e run test:e2e` for the browser suite. Set `KS_BASE` to run against an existing test deployment, for example `KS_BASE=http://127.0.0.1:18203/kitchensink/ npm --prefix e2e test`.
