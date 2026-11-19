@@ -84,6 +84,7 @@ spec:
             - name: H2_APP_PASSWORD
               valueFrom:
                 secretKeyRef: {name: h2-credentials, key: H2_APP_PASSWORD}
+            - {name: KS_SPRING_READ_BASE_URL, value: "http://modern:8080/kitchensink"}
             - {name: JAVA_OPTS, value: "-Xlog:gc:stdout:time,level,tags -Xms128m -Xmx512m -Djava.net.preferIPv4Stack=true"}
           resources:
             requests: {cpu: 100m, memory: 384Mi}

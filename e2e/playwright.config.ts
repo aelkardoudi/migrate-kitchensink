@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 import { resolve } from 'node:path';
 
 const localBase = 'http://127.0.0.1:18202/kitchensink/';
+const testNamespace = 'migrate-kitchensink-test';
 const target = process.env.KS_BASE;
 const baseURL = new URL(target ?? localBase);
 if (!['http:', 'https:'].includes(baseURL.protocol) || baseURL.username || baseURL.password) {
@@ -29,8 +30,9 @@ export default defineConfig({
     { name: 'e2e', testDir: './tests/e2e' },
   ],
   webServer: target === undefined ? {
-    command: '../deploy/demo.sh up --namespace migrate-kitchensink-test --port 18202'
-      + ' && exec ../deploy/demo.sh forward --namespace migrate-kitchensink-test --port 18202',
+    command: `../deploy/demo.sh up --namespace ${testNamespace} --port 18202`
+      + ` && ../deploy/modern.sh up --namespace ${testNamespace}`
+      + ` && exec ../deploy/demo.sh forward --namespace ${testNamespace} --port 18202`,
     url: new URL('index.jsf', localBase).href,
     timeout: 8 * 60_000,
     reuseExistingServer: false,

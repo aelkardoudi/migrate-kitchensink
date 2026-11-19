@@ -16,10 +16,10 @@
  */
 package org.jboss.as.quickstarts.kitchensink.data;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.event.Reception;
+import jakarta.enterprise.event.TransactionPhase;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -41,15 +41,15 @@ public class MemberListProducer {
     @Produces
     @Named
     public List<Member> getMembers() {
+        if (members == null) {
+            members = memberReads.findAllOrderedByName();
+        }
         return members;
     }
 
-    public void onMemberListChanged(@Observes(notifyObserver = Reception.IF_EXISTS) final Member member) {
-        retrieveAllMembersOrderedByName();
-    }
-
-    @PostConstruct
-    public void retrieveAllMembersOrderedByName() {
-        members = memberReads.findAllOrderedByName();
+    public void onMemberListChanged(
+            @Observes(during = TransactionPhase.AFTER_SUCCESS, notifyObserver = Reception.IF_EXISTS) final Member member) {
+        // Let JSF reload during rendering, outside the transaction completion callback.
+        members = null;
     }
 }

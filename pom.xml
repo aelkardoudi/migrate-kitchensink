@@ -23,6 +23,16 @@
         <module>modules/kitchensink</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>modern</id>
+            <modules>
+                <module>modules/new-kitchensink-core</module>
+                <module>modules/new-kitchensink-boot</module>
+            </modules>
+        </profile>
+    </profiles>
+
     <repositories>
         <!-- keep this repository the first -->
         <repository>
