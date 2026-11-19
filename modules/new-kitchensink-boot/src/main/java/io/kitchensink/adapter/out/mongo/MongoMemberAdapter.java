@@ -7,12 +7,10 @@ import io.kitchensink.member.application.port.out.MemberRepository;
 import io.kitchensink.member.domain.DuplicateMemberEmailException;
 import io.kitchensink.member.domain.Member;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("mongo")
 @RequiredArgsConstructor
 public class MongoMemberAdapter implements MemberRepository {
     private final MongoMemberRepository repository;

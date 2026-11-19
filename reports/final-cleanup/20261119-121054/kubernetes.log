@@ -1,0 +1,48 @@
+# Cold deployment in migrate-kitchensink-final
+namespace/migrate-kitchensink-final created
+persistentvolumeclaim/mongodb-data created
+service/mongodb created
+statefulset.apps/mongodb created
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+deployment.apps/modern created
+service/modern created
+Waiting for deployment "modern" rollout to finish: 0 of 1 updated replicas are available...
+deployment "modern" successfully rolled out
+deployment.apps/legacy created
+service/public-web created
+Waiting for deployment "legacy" rollout to finish: 0 of 1 updated replicas are available...
+deployment "legacy" successfully rolled out
+Local access: ./deploy/demo.sh forward --namespace migrate-kitchensink-final --port 18201
+Cold deployment: 24s
+
+# Pod replacement and post-restart probes
+statefulset.apps/mongodb restarted
+Waiting for partitioned roll out to finish: 0 out of 1 new pods have been updated...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+deployment.apps/modern restarted
+Waiting for deployment "modern" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "modern" rollout to finish: 1 old replicas are pending termination...
+deployment "modern" successfully rolled out
+First public REST request during Spring pod replacement returned HTTP 503. WildFly logged intermittent connection refusal to modern:8080.
+12/12 passed. All 8 MongoDB members, counter, changelogs and index survived pod replacement.
+index.jsf HTTP 200
+rest/members HTTP 200
+rest/members/8 HTTP 200
+Public REST returns all 8 persisted members, fields match MongoDB.
+
+# Retest final pods
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/legacy-749bc9cd9-9ft26    1/1     Running   0          92s
+pod/modern-677b5bcc94-ppw5k   1/1     Running   0          47s
+pod/mongodb-0                 1/1     Running   0          51s
+
+# Existing namespace upgrade in migrate-kitchensink-test
+Existing MongoDB members unchanged: 47; historic H2 members matched: 47; outbox: 0; H2 writers: 0
+Upgrade and reconciliation: 52s
+deployment.apps/live-integration scaled
+statefulset.apps/h2 scaled
+Identical Kubernetes claims and tags after retirement.

@@ -19,4 +19,34 @@
             }</mongodb:options>
         </mongodb:createIndex>
     </changeSet>
+
+    <changeSet id="002-members-counter" author="kitchensink" runInTransaction="false">
+        <comment>Initialize the member counter as Int64 and keep it at or above the largest numeric member ID.</comment>
+        <mongodb:runCommand>
+            <mongodb:command><![CDATA[{
+                "aggregate": "members",
+                "pipeline": [
+                    {"$match": {"_id": {"$type": "number"}}},
+                    {"$sort": {"_id": -1}},
+                    {"$limit": 1},
+                    {"$project": {"_id": {"$literal": "member"}, "value": {"$toLong": {"$ceil": "$_id"}}}},
+                    {"$unionWith": {"pipeline": [
+                        {"$documents": [{"_id": "member", "value": {"$numberLong": "0"}}]}
+                    ]}},
+                    {"$group": {"_id": "$_id", "value": {"$max": "$value"}}},
+                    {"$set": {"value": {"$toLong": "$value"}}},
+                    {"$merge": {
+                        "into": "counters",
+                        "on": "_id",
+                        "whenMatched": [
+                            {"$set": {"value": {"$toLong": {"$ceil": {"$max": ["$value", "$$new.value"]}}}}}
+                        ],
+                        "whenNotMatched": "insert"
+                    }}
+                ],
+                "cursor": {},
+                "writeConcern": {"w": "majority", "j": true}
+            }]]></mongodb:command>
+        </mongodb:runCommand>
+    </changeSet>
 </databaseChangeLog>

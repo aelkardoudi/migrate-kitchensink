@@ -25,32 +25,10 @@
 
     <modules>
         <module>modules/kitchensink</module>
+        <module>modules/new-kitchensink-core</module>
+        <module>modules/kitchensink-mongodb-migrations</module>
+        <module>modules/new-kitchensink-boot</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>modern</id>
-            <modules>
-                <module>modules/new-kitchensink-core</module>
-                <module>modules/new-kitchensink-boot</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>live-integration</id>
-            <modules>
-                <module>modules/kitchensink-shared-infra</module>
-                <module>modules/kitchensink-mongodb-migrations</module>
-                <module>modules/kitchensink-live-integration</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>batch</id>
-            <modules>
-                <module>modules/kitchensink-shared-infra</module>
-                <module>modules/kitchensink-member-backfill</module>
-            </modules>
-        </profile>
-    </profiles>
 
     <repositories>
         <!-- keep this repository the first -->

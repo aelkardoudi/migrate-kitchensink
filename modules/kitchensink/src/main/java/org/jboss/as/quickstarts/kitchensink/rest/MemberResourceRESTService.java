@@ -36,11 +36,7 @@ import org.jboss.as.quickstarts.kitchensink.bridge.MemberRegistrationException;
 import org.jboss.as.quickstarts.kitchensink.bridge.MemberRegistrationFacade;
 import org.jboss.as.quickstarts.kitchensink.model.Member;
 
-/**
- * JAX-RS Example
- * <p/>
- * This class produces a RESTful service to read/write the contents of the members table.
- */
+/** Publishes the member API at the URLs used by the JSF frontend. */
 @Path("/members")
 @RequestScoped
 public class MemberResourceRESTService {

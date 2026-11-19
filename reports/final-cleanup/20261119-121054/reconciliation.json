@@ -1,0 +1,71 @@
+{
+  "coldDeployment": {
+    "beforeTests": {
+      "namespace": "migrate-kitchensink-final",
+      "mongoMembers": 0,
+      "mongoMaxId": "0",
+      "mongoCounter": "0",
+      "changelogs": [
+        "001-members-email-index",
+        "002-members-counter"
+      ],
+      "uniqueEmailIndex": true
+    },
+    "afterTests": {
+      "namespace": "migrate-kitchensink-final",
+      "mongoMembers": 8,
+      "mongoMaxId": "8",
+      "mongoCounter": "8",
+      "changelogs": [
+        "001-members-email-index",
+        "002-members-counter"
+      ],
+      "uniqueEmailIndex": true
+    },
+    "afterPodReplacement": {
+      "namespace": "migrate-kitchensink-final",
+      "mongoMembers": 8,
+      "mongoMaxId": "8",
+      "mongoCounter": "8",
+      "changelogs": [
+        "001-members-email-index",
+        "002-members-counter"
+      ],
+      "uniqueEmailIndex": true
+    },
+    "fieldsMatchedAfterPodReplacement": true,
+    "sameVolumeClaimAfterPodReplacement": true
+  },
+  "upgradedNamespace": {
+    "beforeUpgrade": {
+      "namespace": "migrate-kitchensink-test",
+      "mongoMembers": 47,
+      "mongoMaxId": "219",
+      "mongoCounter": "219",
+      "changelogs": [
+        "001-members-email-index"
+      ],
+      "uniqueEmailIndex": true
+    },
+    "afterUpgradeBeforeH2Shutdown": {
+      "namespace": "migrate-kitchensink-test",
+      "mongoMembers": 47,
+      "mongoMaxId": "219",
+      "mongoCounter": "219",
+      "changelogs": [
+        "001-members-email-index",
+        "002-members-counter"
+      ],
+      "uniqueEmailIndex": true,
+      "h2Members": 47,
+      "writers": 0,
+      "outbox": 0
+    },
+    "fieldsMatchedAfterUpgrade": true,
+    "preservedVolumeClaims": [
+      "h2-data",
+      "member-backfill-data",
+      "mongodb-data"
+    ]
+  }
+}

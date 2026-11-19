@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: legacy
+  labels: {app: legacy}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: legacy}
+  template:
+    metadata:
+      labels: {app: legacy}
+    spec:
+      containers:
+        - name: legacy
+          image: IMAGE_LEGACY
+          imagePullPolicy: Never
+          ports: [{name: http, containerPort: 8080}]
+          env:
+            - {name: KS_SPRING_BASE_URL, value: "http://modern:8080/kitchensink"}
+            - {name: JAVA_OPTS, value: "-Xlog:gc:stdout:time,level,tags -Xms128m -Xmx512m -Djava.net.preferIPv4Stack=true"}
+          resources:
+            requests: {cpu: 100m, memory: 384Mi}
+            limits: {memory: 768Mi}
+          securityContext: {runAsNonRoot: true, runAsUser: 1000, allowPrivilegeEscalation: false}
+          startupProbe:
+            httpGet: {path: /kitchensink/resources/css/screen.css, port: http}
+            periodSeconds: 2
+            failureThreshold: 90
+          readinessProbe:
+            httpGet: {path: /kitchensink/resources/css/screen.css, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket: {port: http}
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: public-web
+spec:
+  selector: {app: legacy}
+  ports: [{name: http, port: 8080, targetPort: http}]

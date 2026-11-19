@@ -2,11 +2,9 @@ package io.kitchensink.adapter.out.mongo;
 
 import org.springframework.boot.health.contributor.AbstractHealthIndicator;
 import org.springframework.boot.health.contributor.Health;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component("mongoHealthIndicator")
-@Profile("mongo")
 class MongoMemberHealthIndicator extends AbstractHealthIndicator {
     private final MongoMemberIds ids;
 
