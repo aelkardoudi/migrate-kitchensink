@@ -1,6 +1,6 @@
 # new-kitchensink-boot
 
-Spring Boot 4.1.2 runs the member API on Java 21. The [core module](../new-kitchensink-core/README.md) defines the use cases. The H2 adapter uses Spring Data JPA with the existing `Member` table. It uses the same H2 driver version as the legacy TCP server.
+Spring Boot 4.1.2 runs the member API on Java 21. The [core module](../new-kitchensink-core/README.md) defines the use cases. The default H2 adapter uses Spring Data JPA with the existing `Member` table. The `mongo` profile selects the Spring Data MongoDB adapter for reads and writes.
 
 | Endpoint | Result |
 | --- | --- |
@@ -15,6 +15,10 @@ The GET endpoints return `id`, `name`, `email`, and `phoneNumber` for each membe
 `H2MemberRepository` uses Spring Data JPA to find a member by ID and derive the list query ordered by name. `MemberEntity` maps the `Member` table, including the `phone_number` column and unique email constraint. Jakarta Validation requires a name of 1 to 25 characters without ASCII digits, a non-empty valid email and a phone number of 10 to 12 characters that satisfies `@Digits(integer = 12, fraction = 0)`.
 
 Hibernate validates the existing schema at startup. The read API returns historical records independently of the entity's input validation rules. Registration uses the existing `Member_SEQ` sequence and the database unique constraint on email.
+
+## MongoDB persistence
+
+`MongoMemberRepository` uses the `members` collection for listing, ID lookup and insertion. The Liquibase-managed unique email index ensures that concurrent requests with the same email produce one successful registration. An atomic increment of the `counters` document with `_id: "member"` allocates each new numeric ID. Before routing traffic to the MongoDB deployment, seed that document's `value` as a BSON Int64 with the maximum imported member ID. Actuator readiness checks that the counter is available and has capacity for another ID.
 
 ## Build and test
 
@@ -35,3 +39,5 @@ To run the JAR directly against an existing H2 server, set `SPRING_DATASOURCE_UR
 ```sh
 java -jar modules/new-kitchensink-boot/target/new-kitchensink-boot.jar
 ```
+
+To run the JAR against MongoDB, set `SPRING_PROFILES_ACTIVE=mongo` and supply `SPRING_MONGODB_URI`. The account needs `find` and `insert` on `members` and `find` and `update` on `counters`. The database name in the URI selects the same database used for the backfill and relay.

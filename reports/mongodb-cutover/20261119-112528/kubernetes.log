@@ -1,0 +1,29 @@
+Spring image
+migrate-kitchensink-modern:content-815cfe61db8b12b49b1f4ac036e69e67829e3926b986d8121846bd41e0192a56	sha256:815cfe61db8b12b49b1f4ac036e69e67829e3926b986d8121846bd41e0192a56
+
+Isolated cutover refusal and H2 restoration
+H2 outbox still contains 1 events after 1s.
+Restored the previous H2 deployment before releasing MongoDB writes.
+
+Successful isolated rehearsal
+H2 outbox drained.
+Exact member parity confirmed for 19 members. Maximum ID 102.
+MongoDB member counter initialized.
+Mongo-backed member list passed the read smoke test.
+MongoDB reads and writes active in migrate-kitchensink-verify-batch-06 after 41s of maintenance. Reconnect existing port-forwards.
+The H2 deployment is disabled during or after MongoDB cutover in migrate-kitchensink-verify-batch-06.
+
+Persistent test namespace cutover
+H2 outbox drained.
+Exact member parity confirmed for 47 members. Maximum ID 219.
+MongoDB member counter initialized.
+Mongo-backed member list passed the read smoke test.
+MongoDB reads and writes active in migrate-kitchensink-test after 41s of maintenance. Reconnect existing port-forwards.
+pod/h2-0 condition met
+pod/legacy-5978895b86-7dtwq condition met
+pod/live-integration-745c75cbc-mvfkb condition met
+pod/modern-5bf948f4fd-dmj5t condition met
+pod/mongodb-0 condition met
+JSF page and registration form available
+REST members returned: 47
+Mongo-backed Spring active. H2=47 unchanged, MongoDB=47, outbox=0, exact parity.

@@ -72,6 +72,17 @@ require_owner() {
   fi
 }
 
+require_h2_mode() {
+  local lock storage
+  lock=$("${in_ns[@]}" get configmap mongo-cutover-lock --ignore-not-found -o name)
+  storage=$("${in_ns[@]}" get deployment modern --ignore-not-found \
+    -o 'jsonpath={.metadata.annotations.kitchensink\.io/member-store}')
+  if [[ -n "$lock" || "$storage" == mongodb ]]; then
+    echo "The H2 deployment is disabled during or after MongoDB cutover in $namespace." >&2
+    exit 1
+  fi
+}
+
 load_image() {
   local image_id actual_id
   if [[ ! -s "$image_lock" ]]; then
@@ -132,6 +143,7 @@ case "$action" in
     ;;
   up)
     require_owner
+    require_h2_mode
     "${in_ns[@]}" rollout status statefulset/h2 --timeout=180s
     load_image
     provision_h2_writer
