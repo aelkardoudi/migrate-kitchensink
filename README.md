@@ -7,6 +7,8 @@ modules/kitchensink/          Jakarta EE WAR, JSF frontend and Java tests
 modules/new-kitchensink-core/  Java 21 member use cases
 modules/new-kitchensink-boot/  Spring Boot member API and H2 adapter
 modules/kitchensink-live-integration/  Camel relay from H2 to MongoDB
+modules/kitchensink-member-backfill/  Spring Batch copy of existing H2 members
+modules/kitchensink-shared-infra/      Shared infrastructure for Camel and Spring Batch
 modules/kitchensink-mongodb-migrations/  Liquibase changelog and MongoDB migration entry point
 deploy/                        Docker image builds and kind deployment
 e2e/                           Playwright REST contract and browser tests
@@ -51,6 +53,10 @@ WildFly serves the JSF UI and public REST API and delegates member reads and reg
 
 The `live-integration` Maven profile builds the Camel Spring Boot application and its [MongoDB migrations module](modules/kitchensink-mongodb-migrations/README.md). An H2 trigger queues new member inserts, and Camel copies them to MongoDB after Liquibase has applied the target changelog. See the [kind deployment guide](deploy/README.md#deploy-mongodb-and-the-camel-relay) to run MongoDB and the relay in the test namespace.
 
+## Copy existing H2 members to MongoDB
+
+Run the `batch` profile to build the [Spring Batch backfill](modules/kitchensink-member-backfill/README.md). The job uses the optional `maxMemberId` parameter as an inclusive limit. By default, it captures the highest visible H2 member ID at startup. Camel keeps following the outbox while the batch runs, including when a new transaction commits with a lower ID. Both writers use the H2 ID as MongoDB `_id` and accept identical data already copied by the other writer. See the [deployment guide](deploy/README.md#run-the-spring-batch-member-backfill) to launch or resume the job.
+
 ## Run the tests
 
 With Node.js 22.18 or newer, install the pinned dependencies and Chromium once. The test command deploys WildFly, Spring Boot and H2 to `migrate-kitchensink-test` and uses port `18202` for the duration of the run.
@@ -78,3 +84,7 @@ The [non-regression report](reports/delegate-writing/20261118-230305/report.md) 
 ## Live integration evidence
 
 The [verification report](reports/live-integration/20261119-012907/report.md) records the Java and Playwright tests, H2-to-MongoDB replication, restart recovery and event replay for `migration/05-live-integration`.
+
+## Member backfill evidence
+
+The [qualification report](reports/member-backfill/20261119-105717/report.md) records the historical copy, the bounded and whole-table verification steps, and the Java, REST and JSF results.

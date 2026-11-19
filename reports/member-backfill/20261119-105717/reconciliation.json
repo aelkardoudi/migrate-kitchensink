@@ -1,0 +1,27 @@
+{
+  "namespace": "migrate-kitchensink-test",
+  "before": {
+    "h2Members": 47,
+    "mongoMembers": 10,
+    "maxH2MemberId": 219,
+    "missingInMongo": 37,
+    "extraInMongo": 0,
+    "differentFields": 0,
+    "invalidMongoDocuments": 0,
+    "seedInH2": true,
+    "seedInMongo": false,
+    "outboxPending": 0
+  },
+  "after": {
+    "h2Members": 47,
+    "mongoMembers": 47,
+    "maxH2MemberId": 219,
+    "missingInMongo": 0,
+    "extraInMongo": 0,
+    "differentFields": 0,
+    "invalidMongoDocuments": 0,
+    "seedInH2": true,
+    "seedInMongo": true,
+    "outboxPending": 0
+  }
+}

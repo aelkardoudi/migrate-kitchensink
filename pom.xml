@@ -38,8 +38,16 @@
         <profile>
             <id>live-integration</id>
             <modules>
+                <module>modules/kitchensink-shared-infra</module>
                 <module>modules/kitchensink-mongodb-migrations</module>
                 <module>modules/kitchensink-live-integration</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>batch</id>
+            <modules>
+                <module>modules/kitchensink-shared-infra</module>
+                <module>modules/kitchensink-member-backfill</module>
             </modules>
         </profile>
     </profiles>
