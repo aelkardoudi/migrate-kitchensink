@@ -1,0 +1,18 @@
+JDK 21, Maven reactor with modern and live-integration profiles.
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.488 s -- in io.kitchensink.MemberReadTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.326 s -- in io.kitchensink.MemberRegistrationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.419 s -- in io.kitchensink.integration.config.MemberInsertRouteTest
+[INFO] Migrate Kitchensink 8.0.0.GA ....................... SUCCESS [  3.266 s]
+[INFO] Quickstart: kitchensink 8.0.0.GA ................... SUCCESS [  1.171 s]
+[INFO] new-kitchensink-core 1.0.0-SNAPSHOT ................ SUCCESS [  0.428 s]
+[INFO] new-kitchensink-boot 1.0.0-SNAPSHOT ................ SUCCESS [  4.597 s]
+[INFO] Kitchensink MongoDB Migrations 8.0.0.GA ............ SUCCESS [  0.168 s]
+[INFO] Kitchensink Live Integration 8.0.0.GA .............. SUCCESS [  1.139 s]
+[INFO] BUILD SUCCESS
+
+RemoteMemberRegistrationIT via JUnitCore
+JUnit version 4.13.1
+.
+Time: 0,167
+
+OK (1 test)

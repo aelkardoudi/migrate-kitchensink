@@ -8,6 +8,8 @@ setup=$(mktemp)
 trap 'rm -f "$setup"' EXIT
 cat /opt/schema.sql > "$setup"
 printf "CREATE USER IF NOT EXISTS members PASSWORD '%s';\nGRANT SELECT, INSERT ON Member TO members;\n" "$H2_APP_PASSWORD" >> "$setup"
-java -cp /opt/h2.jar org.h2.tools.RunScript -url jdbc:h2:file:/data/kitchensink -user maintenance -password "$H2_MAINT_PASSWORD" -script "$setup"
+cat /opt/live-integration.sql >> "$setup"
+classpath=/opt/h2.jar:/opt/trigger
+java -cp "$classpath" org.h2.tools.RunScript -url jdbc:h2:file:/data/kitchensink -user maintenance -password "$H2_MAINT_PASSWORD" -script "$setup"
 rm -f "$setup"
-exec java -Xms32m -Xmx128m -cp /opt/h2.jar org.h2.tools.Server -tcp -tcpAllowOthers -tcpPort 9092 -ifExists -baseDir /data
+exec java -Xms32m -Xmx128m -cp "$classpath" org.h2.tools.Server -tcp -tcpAllowOthers -tcpPort 9092 -ifExists -baseDir /data

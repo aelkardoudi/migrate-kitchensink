@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-init
+  labels: {app: mongodb}
+data:
+  provision-members-relay.js: |
+    const database = db.getSiblingDB('kitchensink');
+    const role = 'liquibaseMetadata';
+    const roleSpec = {
+      privileges: ['DATABASECHANGELOG', 'DATABASECHANGELOGLOCK'].map(collection => ({
+        resource: { db: 'kitchensink', collection },
+        actions: ['collMod']
+      })),
+      roles: []
+    };
+    if (database.getRole(role)) {
+      database.updateRole(role, roleSpec);
+    } else {
+      database.createRole({ role, ...roleSpec });
+    }
+    const user = 'members_relay';
+    const userSpec = {
+      pwd: process.env.MONGO_RELAY_PASSWORD,
+      roles: [{ role: 'readWrite', db: 'kitchensink' }, { role, db: 'kitchensink' }]
+    };
+    if (database.getUser(user)) {
+      database.updateUser(user, userSpec);
+    } else {
+      database.createUser({ user, ...userSpec });
+    }
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-data
+  labels: {app: mongodb}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  labels: {app: mongodb}
+spec:
+  clusterIP: None
+  selector: {app: mongodb}
+  ports: [{name: mongodb, port: 27017, targetPort: mongodb}]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  labels: {app: mongodb}
+spec:
+  serviceName: mongodb
+  replicas: 1
+  selector:
+    matchLabels: {app: mongodb}
+  template:
+    metadata:
+      labels: {app: mongodb}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: mongodb
+          image: IMAGE_MONGODB
+          imagePullPolicy: Never
+          args: [mongod, --wiredTigerCacheSizeGB, "0.3"]
+          env:
+            - {name: MONGO_INITDB_ROOT_USERNAME, value: admin}
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: mongodb-credentials, key: MONGO_ROOT_PASSWORD}
+            - name: MONGO_RELAY_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: mongodb-credentials, key: MONGO_RELAY_PASSWORD}
+            - name: POD_IP
+              valueFrom:
+                fieldRef: {fieldPath: status.podIP}
+          ports: [{name: mongodb, containerPort: 27017}]
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {memory: 768Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+          startupProbe:
+            exec:
+              command:
+                - sh
+                - -ec
+                - >-
+                  mongosh --host "$POD_IP" --quiet --norc
+                  --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD"
+                  --authenticationDatabase admin
+                  --eval 'quit(db.runCommand({ping: 1}).ok === 1 ? 0 : 1)' >/dev/null 2>&1
+            periodSeconds: 3
+            timeoutSeconds: 3
+            failureThreshold: 80
+          readinessProbe:
+            tcpSocket: {port: mongodb}
+            periodSeconds: 3
+          volumeMounts:
+            - {name: data, mountPath: /data/db}
+            - {name: provision, mountPath: /opt/kitchensink-mongo, readOnly: true}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: mongodb-data}
+        - name: provision
+          configMap: {name: mongodb-init}

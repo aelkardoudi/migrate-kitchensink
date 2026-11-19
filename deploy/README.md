@@ -50,6 +50,29 @@ Open the [Spring member list](http://127.0.0.1:18203/kitchensink/rest/members) o
 
 `./deploy/modern.sh status` shows the Spring service and pods. `./deploy/modern.sh stop` scales Spring to zero. Keep H2 running while Spring is serving requests.
 
+## Deploy MongoDB and the Camel relay
+
+Use the test namespace on kind and a Docker version that supports `docker image save --platform`. Build the three application images and the H2 image with the insert trigger.
+
+```sh
+mvn -P modern,live-integration clean package
+./deploy/build-images.sh
+./deploy/modern.sh build
+./deploy/live-integration.sh build
+```
+
+Start the existing stack before adding MongoDB and the relay.
+
+```sh
+./deploy/demo.sh up --namespace migrate-kitchensink-test
+./deploy/modern.sh up --namespace migrate-kitchensink-test
+./deploy/live-integration.sh up --namespace migrate-kitchensink-test
+```
+
+`./deploy/live-integration.sh status` shows both workloads and the MongoDB volume. `./deploy/live-integration.sh logs` follows Camel logs. In IntelliJ IDEA, select the `migrate-kitchensink-test` namespace under **Services → kind-kitchensink** and expand **Workloads → Pods**. MongoDB uses the internal `mongodb:27017` service and the persistent `mongodb-data` claim. The relay applies the MongoDB changelog before it reads the H2 outbox.
+
+`./deploy/live-integration.sh stop` scales down the relay and MongoDB and preserves the volume and credentials. Keep the H2 image with the insert trigger while the relay is stopped so new registrations stay queued for restart.
+
 ## Roll back delegated registration
 
 WildFly sends member reads and registrations from the JSF form and REST API to Spring Boot. If Spring is unavailable, WildFly returns HTTP 503 for REST requests. For standalone WildFly, set `KS_SPRING_BASE_URL` to the Spring URL including the `/kitchensink` context path. The previous `KS_SPRING_READ_BASE_URL` setting still works when `KS_SPRING_BASE_URL` is unset.
