@@ -1,69 +1,30 @@
 # Migrate Kitchensink
 
-The legacy baseline `8.0.0.GA` runs the Jakarta EE application and its JSF frontend on WildFly 28.0.1.Final, with H2 2.1.214 on Kubernetes. Use the Git tag `baseline/8.0.0.GA` to compare later migration steps against this version.
+WildFly serves the JSF frontend and forwards member requests to Spring Boot. Spring Boot reads and writes members in MongoDB and applies its Liquibase changelog at startup.
 
-```text
-modules/kitchensink/          Jakarta EE WAR, JSF frontend and Java tests
-modules/new-kitchensink-core/  Java 21 member use cases
-modules/new-kitchensink-boot/  Spring Boot member API and H2 adapter
-modules/kitchensink-live-integration/  Camel relay from H2 to MongoDB
-modules/kitchensink-member-backfill/  Spring Batch copy of existing H2 members
-modules/kitchensink-shared-infra/      Shared infrastructure for Camel and Spring Batch
-modules/kitchensink-mongodb-migrations/  Liquibase changelog and MongoDB migration entry point
-deploy/                        Docker image builds and kind deployment
-e2e/                           Playwright REST contract and browser tests
-reports/                       Qualification reports and build evidence
-```
+| Module | Responsibility |
+| --- | --- |
+| [kitchensink](modules/kitchensink/README.md) | JSF frontend and public REST routes on WildFly |
+| [new-kitchensink-core](modules/new-kitchensink-core/README.md) | Member use cases and persistence port |
+| [new-kitchensink-boot](modules/new-kitchensink-boot/README.md) | Spring Boot API and MongoDB adapter |
+| [kitchensink-mongodb-migrations](modules/kitchensink-mongodb-migrations/README.md) | MongoDB Liquibase changelog |
 
-## Build and run locally
+## Run locally
 
-Install JDK 21, Maven, Docker with BuildKit, kind, kubectl and OpenSSL. From the project root, build the WildFly WAR, Spring Boot JAR and their images.
+Install JDK 21, Maven, Docker, kind, kubectl and OpenSSL. Build the application and start the three workloads on the local kind cluster.
 
 ```sh
-mvn -Pmodern clean package
-./deploy/build-images.sh
-./deploy/modern.sh build
-```
-
-Create the local cluster with `kind create cluster --name kitchensink` if it does not already exist. Start both deployments in the same namespace and keep port forwarding active.
-
-```sh
+mvn clean verify
+./deploy/demo.sh build
 ./deploy/demo.sh up
-./deploy/modern.sh up
 ./deploy/demo.sh forward
 ```
 
-Open the [JSF frontend](http://127.0.0.1:18201/kitchensink/) or the [member API](http://127.0.0.1:18201/kitchensink/rest/members). Run `./deploy/demo.sh status` to see the pods. Stop Spring with `./deploy/modern.sh stop`, then stop WildFly and H2 with `./deploy/demo.sh stop`. See the [deployment guide](deploy/README.md) for ports and namespaces.
+Open the [JSF frontend](http://127.0.0.1:18201/kitchensink/index.jsf) or [member list](http://127.0.0.1:18201/kitchensink/rest/members). Use `./deploy/demo.sh status` to inspect the workloads and `./deploy/demo.sh stop` to stop them while preserving the MongoDB volume. See the [deployment guide](deploy/README.md) for IntelliJ and existing namespaces.
 
-In IntelliJ IDEA, import the root `pom.xml` and run **Kitchensink - Kubernetes**. View logs and pods in **Services → kind-kitchensink → Workloads → Pod** with the `migrate-kitchensink-dev` namespace selected.
+## Run the Playwright tests
 
-## Spring Boot member API
-
-Activate the Maven `modern` profile with JDK 21 to build and test the new modules.
-
-```sh
-mvn -Pmodern -pl .,modules/new-kitchensink-boot -am clean verify
-```
-
-The [Spring Boot module](modules/new-kitchensink-boot/README.md) uses H2 by default for member lists, details and registrations. It runs in its own Kubernetes Deployment. See the [deployment guide](deploy/README.md#deploy-the-spring-member-api). In IntelliJ IDEA, activate `modern` in the Maven tool window to load both new modules.
-
-WildFly serves the JSF UI and public REST API and delegates member reads and registrations to Spring Boot. Redeploy the [previous WildFly image](deploy/README.md#roll-back-delegated-registration) to restore direct H2 writes.
-
-## Live replication to MongoDB
-
-The `live-integration` Maven profile builds the Camel Spring Boot application and its [MongoDB migrations module](modules/kitchensink-mongodb-migrations/README.md). An H2 trigger queues new member inserts, and Camel copies them to MongoDB after Liquibase has applied the target changelog. See the [kind deployment guide](deploy/README.md#deploy-mongodb-and-the-camel-relay) to run MongoDB and the relay in the test namespace.
-
-## Copy existing H2 members to MongoDB
-
-Run the `batch` profile to build the [Spring Batch backfill](modules/kitchensink-member-backfill/README.md). The job uses the optional `maxMemberId` parameter as an inclusive limit. By default, it captures the highest visible H2 member ID at startup. Camel keeps following the outbox while the batch runs, including when a new transaction commits with a lower ID. Both writers use the H2 ID as MongoDB `_id` and accept identical data already copied by the other writer. See the [deployment guide](deploy/README.md#run-the-spring-batch-member-backfill) to launch or resume the job.
-
-## Switch the member API to MongoDB
-
-The Spring `mongo` profile uses a Spring Data `MongoRepository` for member lists, details and registrations. The [Kubernetes cutover](deploy/README.md#switch-member-reads-and-writes-to-mongodb) pauses the application, waits for Camel to drain the H2 outbox, compares the data and initializes the MongoDB ID counter before reopening the JSF frontend. H2 and Camel remain deployed during this stage.
-
-## Run the tests
-
-With Node.js 22.18 or newer, install the pinned dependencies and Chromium once. The test command deploys WildFly, Spring Boot and H2 to `migrate-kitchensink-test` and uses port `18202` for the duration of the run.
+Use Node.js 22.18 or newer. The suite starts an isolated kind deployment and runs 11 API contract scenarios and one JSF browser scenario.
 
 ```sh
 npm --prefix e2e ci
@@ -71,30 +32,19 @@ npm --prefix e2e exec -- playwright install chromium
 npm --prefix e2e test
 ```
 
-Use `npm --prefix e2e run test:contrat` for REST only or `npm --prefix e2e run test:e2e` for the browser only. The JSON report is written to `.run/playwright/playwright.json`. See the [Playwright guide](e2e/README.md) and the [Java integration test guide](modules/kitchensink/README.adoc#run_the_arquillian_integration_tests_with_server_distribution).
+Use [the Playwright guide](e2e/README.md) to test an existing deployment with `KS_BASE` or open the JSON report.
 
-For a Mongo-backed rehearsal, forward the public service in the isolated namespace and set `KS_BASE` to the forwarded `/kitchensink/` URL before running Playwright. The suite creates test members in the selected database.
+## Migration history
 
-## Baseline evidence
+Each tag captures a runnable migration stage and its original deployment. Open the report for the evidence from that stage.
 
-The functional qualification passed **13 tests on a fresh kind deployment** (1 Maven integration test, 11 REST contract tests and 1 JSF browser test). Performance testing was deferred. The [qualification report](reports/legacy-8.0.0.GA/20261118-163145/rapport.md) links to the results, the SHA-256 of the tested WAR and the evidence manifests.
-
-## Delegated reading evidence
-
-The [non-regression report](reports/delegate-reading/20261118-210256/report.md) documents the REST, JSF and Java integration tests for `migration/03-delegate-reading`. It includes Spring request logs captured while the Playwright suite ran against WildFly.
-
-## Delegated registration evidence
-
-The [non-regression report](reports/delegate-writing/20261118-230305/report.md) records the REST, JSF and Spring integration tests for `migration/04-delegate-writing`. The Spring request logs show the registrations sent by WildFly to Spring Boot on the shared H2 database.
-
-## Live integration evidence
-
-The [verification report](reports/live-integration/20261119-012907/report.md) records the Java and Playwright tests, H2-to-MongoDB replication, restart recovery and event replay for `migration/05-live-integration`.
-
-## Member backfill evidence
-
-The [qualification report](reports/member-backfill/20261119-105717/report.md) records the historical copy, the bounded and whole-table verification steps, and the Java, REST and JSF results.
-
-## MongoDB cutover evidence
-
-The [qualification report](reports/mongodb-cutover/20261119-112528/report.md) records the cutover rehearsal, the drain timeout and restoration, the MongoDB writes, and the validation of the persistent test environment.
+| Tag | Qualification |
+| --- | --- |
+| `baseline/8.0.0.GA` | [WildFly, JSF and H2 baseline](reports/legacy-8.0.0.GA/20261118-163145/rapport.md) |
+| `migration/02-legacy-facade` | [WildFly façades](reports/legacy-facade/20261118-173050/report.md) |
+| `migration/03-delegate-reading` | [Delegate reads to Spring Boot](reports/delegate-reading/20261118-210256/report.md) |
+| `migration/04-delegate-writing` | [Delegate registration to Spring Boot](reports/delegate-writing/20261118-230305/report.md) |
+| `migration/05-live-integration` | [Replicate to MongoDB with Camel](reports/live-integration/20261119-012907/report.md) |
+| `migration/06-backfill-batch` | [Copy historical H2 data](reports/member-backfill/20261119-105717/report.md) |
+| `migration/07-mongodb-cutover` | [Switch reads and writes to MongoDB](reports/mongodb-cutover/20261119-112528/report.md) |
+| `migration/08-final-cleanup` | [Retire migration workloads and qualify the final deployment](reports/final-cleanup/20261119-121054/report.md) |

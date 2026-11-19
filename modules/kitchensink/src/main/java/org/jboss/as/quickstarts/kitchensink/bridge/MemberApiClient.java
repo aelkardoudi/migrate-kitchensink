@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.ServiceUnavailableException;
 import jakarta.ws.rs.client.Client;
@@ -26,14 +25,12 @@ import org.jboss.as.quickstarts.kitchensink.model.Member;
 @ApplicationScoped
 public class MemberApiClient {
 
+    private static final Logger LOG = Logger.getLogger(MemberApiClient.class.getName());
     private static final String DEFAULT_BASE_URL = "http://modern:8080/kitchensink";
     private static final GenericType<List<Member>> MEMBER_LIST = new GenericType<List<Member>>() {
     };
     private static final GenericType<Map<String, String>> FIELD_ERRORS = new GenericType<Map<String, String>>() {
     };
-
-    @Inject
-    private Logger log;
 
     private Client client;
     private WebTarget members;
@@ -41,9 +38,6 @@ public class MemberApiClient {
     @PostConstruct
     void init() {
         String baseUrl = System.getenv("KS_SPRING_BASE_URL");
-        if (baseUrl == null) {
-            baseUrl = System.getenv("KS_SPRING_READ_BASE_URL");
-        }
         client = ClientBuilder.newBuilder()
                 .connectTimeout(2, TimeUnit.SECONDS)
                 .readTimeout(8, TimeUnit.SECONDS)
@@ -110,13 +104,13 @@ public class MemberApiClient {
 
     private void requireOk(Response response) {
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            log.warning("Spring member API returned HTTP " + response.getStatus());
+            LOG.warning("Spring member API returned HTTP " + response.getStatus());
             throw new ServiceUnavailableException("Spring member API unavailable");
         }
     }
 
     private ServiceUnavailableException unavailable(ProcessingException failure) {
-        log.log(Level.WARNING, "Spring member API request failed", failure);
+        LOG.log(Level.WARNING, "Spring member API request failed", failure);
         return new ServiceUnavailableException("Spring member API unavailable");
     }
 }

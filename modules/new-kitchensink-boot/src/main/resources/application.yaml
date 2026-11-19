@@ -1,6 +1,12 @@
 spring:
   application:
     name: new-kitchensink-boot
+  mongodb:
+    uri: ${SPRING_MONGODB_URI}
+
+kitchensink:
+  mongodb:
+    migration-uri: ${KS_MONGODB_MIGRATION_URI}
 
 server:
   servlet:
@@ -15,48 +21,6 @@ management:
     health:
       probes:
         enabled: true
-
----
-spring:
-  config:
-    activate:
-      on-profile: "!mongo"
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.mongodb.autoconfigure.MongoAutoConfiguration
-      - org.springframework.boot.data.mongodb.autoconfigure.DataMongoAutoConfiguration
-      - org.springframework.boot.data.mongodb.autoconfigure.DataMongoRepositoriesAutoConfiguration
-  datasource:
-    embedded-database-connection: none
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: validate
-  sql:
-    init:
-      mode: never
-
-management:
-  endpoint:
-    health:
-      group:
-        readiness:
-          include: readinessState,db
-
----
-spring:
-  config:
-    activate:
-      on-profile: mongo
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
-      - org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
-      - org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration
-
-management:
-  endpoint:
-    health:
       group:
         readiness:
           include: readinessState,mongo

@@ -1,11 +1,5 @@
-# Kitchensink MongoDB Migrations
+# Kitchensink MongoDB migrations
 
-This Java 21 library owns the MongoDB Liquibase changelog. The live integration module calls `MongoMigrations.migrate(ConnectionString)` at startup. Other applications can depend on this library to apply the same changelog. The connection string must include the target database, and the account needs permission to manage Liquibase history and locks and apply the changesets.
+This Java 21 module holds the MongoDB Liquibase changelog. Spring Boot calls `MongoMigrations.migrate(ConnectionString)` at startup with a dedicated account that can manage the Liquibase history and locks, create the unique member email index and initialize the member ID counter.
 
-Build from the repository root.
-
-```sh
-mvn -P live-integration -pl modules/kitchensink-mongodb-migrations -am clean verify
-```
-
-Keep applied changesets and their changelog path stable. Add future changesets to [`db.changelog-master.xml`](src/main/resources/db/changelog/mongodb/db.changelog-master.xml) with new IDs. Liquibase records applied changesets in MongoDB's `DATABASECHANGELOG` collection.
+Keep applied changesets and their changelog path stable. Add future changesets with new IDs to [the master changelog](src/main/resources/db/changelog/mongodb/db.changelog-master.xml). Liquibase records applied changesets in MongoDB's `DATABASECHANGELOG` collection.

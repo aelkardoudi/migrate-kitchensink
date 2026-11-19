@@ -27,6 +27,7 @@ import jakarta.ws.rs.ServiceUnavailableException;
 
 import org.jboss.as.quickstarts.kitchensink.bridge.MemberRegistrationException;
 import org.jboss.as.quickstarts.kitchensink.bridge.MemberRegistrationFacade;
+import org.jboss.as.quickstarts.kitchensink.data.MemberListProducer;
 import org.jboss.as.quickstarts.kitchensink.model.Member;
 
 // The @Model stereotype is a convenience mechanism to make this a request-scoped bean that has an
@@ -42,6 +43,9 @@ public class MemberController {
     @Inject
     private MemberRegistrationFacade memberRegistration;
 
+    @Inject
+    private MemberListProducer memberList;
+
     @Produces
     @Named
     private Member newMember;
@@ -54,6 +58,7 @@ public class MemberController {
     public void register() {
         try {
             memberRegistration.register(newMember);
+            memberList.invalidate();
             FacesMessage m = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registered!", "Registration successful");
             facesContext.addMessage(null, m);
             initNewMember();

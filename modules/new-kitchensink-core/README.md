@@ -13,4 +13,4 @@ From the repository root, build this module with JDK 21 and Maven.
 mvn -f modules/new-kitchensink-core/pom.xml package
 ```
 
-The [Boot module](../new-kitchensink-boot/README.md) provides the HTTP and H2 adapters.
+The [Boot module](../new-kitchensink-boot/README.md) provides the HTTP and MongoDB adapters.

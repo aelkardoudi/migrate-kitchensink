@@ -2,7 +2,6 @@ package io.kitchensink.adapter.out.mongo;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.BsonType;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -13,7 +12,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("mongo")
 @RequiredArgsConstructor
 class MongoMemberIds {
     private final MongoOperations operations;

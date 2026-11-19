@@ -17,9 +17,6 @@
 package org.jboss.as.quickstarts.kitchensink.data;
 
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.enterprise.event.Reception;
-import jakarta.enterprise.event.TransactionPhase;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -47,9 +44,7 @@ public class MemberListProducer {
         return members;
     }
 
-    public void onMemberListChanged(
-            @Observes(during = TransactionPhase.AFTER_SUCCESS, notifyObserver = Reception.IF_EXISTS) final Member member) {
-        // Reload during JSF rendering after the registration has succeeded.
+    public void invalidate() {
         members = null;
     }
 }
